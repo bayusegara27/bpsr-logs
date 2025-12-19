@@ -155,12 +155,7 @@ If you've tried all the above solutions and still can't access the web interface
    - Firewall/antivirus software you're running
    - Other applications that might be using the ports
 
-2. **Join the Discord:** https://discord.gg/Tcc54ST5BU
-   - Go to the #i-need-help channel
-   - Provide the information you collected
-   - Describe exactly what you're trying to do and what's happening
-
-3. **GitHub Issues:**
+2. **GitHub Issues:**
    - Check if someone else has reported the same issue
    - Create a new issue with detailed information
    - Include logs and steps to reproduce
