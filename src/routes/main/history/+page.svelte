@@ -116,7 +116,7 @@
 
 	{#if history.length > 0}
 		<div class="history-grid grid grid-cols-1 gap-4">
-			{#each history as encounter}
+			{#each history as encounter (encounter.id)}
 				<div class="encounter-card group bg-card rounded-xl shadow-lg border border-border p-6 hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]">
 					<div class="flex items-start justify-between mb-4">
 						<div class="flex-1">

@@ -80,7 +80,7 @@
 	</div>
 
 	<div class="changelog-timeline space-y-6">
-		{#each changelog as entry, index}
+		{#each changelog as entry, index (entry.version)}
 			<div class="version-entry group bg-card rounded-xl shadow-lg border border-border p-6 hover:shadow-2xl transition-all duration-300 animate-in slide-in-from-bottom-{(index + 1) * 2} duration-{500 + index * 100}">
 				<div class="flex items-start justify-between mb-4">
 					<div>
@@ -96,7 +96,7 @@
 				</div>
 				
 				<div class="changes-list space-y-2 mt-4">
-					{#each entry.changes as change}
+					{#each entry.changes as change, idx (`${entry.version}-${idx}`)}
 						<div class="change-item flex items-start gap-3 p-3 rounded-lg hover:bg-accent/30 transition-colors">
 							<span class="text-xl">{getTypeIcon(change.type)}</span>
 							<div class="flex-1">

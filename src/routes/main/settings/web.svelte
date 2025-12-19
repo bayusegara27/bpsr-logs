@@ -9,7 +9,6 @@
 	let refreshInterval = $state(1000);
 	let compactMode = $state(false);
 	let showAnimations = $state(true);
-	let darkMode = $state(true);
 
 	onMount(() => {
 		// Detect if running in web browser
@@ -24,7 +23,6 @@
 				refreshInterval = settings.refreshInterval ?? 1000;
 				compactMode = settings.compactMode ?? false;
 				showAnimations = settings.showAnimations ?? true;
-				darkMode = settings.darkMode ?? true;
 			} catch (e) {
 				console.error('Failed to load web settings:', e);
 			}
@@ -36,43 +34,33 @@
 			autoRefresh,
 			refreshInterval,
 			compactMode,
-			showAnimations,
-			darkMode
+			showAnimations
 		};
 		localStorage.setItem('bpsr-web-settings', JSON.stringify(settings));
 	}
 
-	function handleAutoRefreshChange(value: boolean) {
-		autoRefresh = value;
+	// Watch for changes and save
+	$effect(() => {
 		saveSettings();
-	}
-
-	function handleCompactModeChange(value: boolean) {
-		compactMode = value;
-		saveSettings();
+		
 		// Apply compact mode class to body
 		if (compactMode) {
 			document.body.classList.add('compact-mode');
 		} else {
 			document.body.classList.remove('compact-mode');
 		}
-	}
-
-	function handleAnimationsChange(value: boolean) {
-		showAnimations = value;
-		saveSettings();
+		
 		// Toggle animations
 		if (!showAnimations) {
 			document.body.classList.add('no-animations');
 		} else {
 			document.body.classList.remove('no-animations');
 		}
-	}
+	});
 
 	function handleIntervalChange(event: Event) {
 		const target = event.target as HTMLInputElement;
 		refreshInterval = parseInt(target.value);
-		saveSettings();
 	}
 </script>
 
@@ -96,18 +84,18 @@
 				<SettingsSwitch
 					label="Auto Refresh"
 					description="Automatically refresh statistics in real-time"
-					checked={autoRefresh}
-					onchange={handleAutoRefreshChange}
+					bind:checked={autoRefresh}
 				/>
 			</div>
 
 			{#if autoRefresh}
 				<div class="setting-item ml-6 p-4 bg-muted/30 rounded-lg">
-					<label class="block mb-2">
+					<label for="refresh-interval" class="block mb-2">
 						<span class="text-sm font-medium">Refresh Interval</span>
 						<span class="text-xs text-muted-foreground ml-2">{refreshInterval}ms</span>
 					</label>
 					<input
+						id="refresh-interval"
 						type="range"
 						min="500"
 						max="5000"
@@ -127,8 +115,7 @@
 				<SettingsSwitch
 					label="Compact Mode"
 					description="Reduce padding and spacing for a more compact interface"
-					checked={compactMode}
-					onchange={handleCompactModeChange}
+					bind:checked={compactMode}
 				/>
 			</div>
 
@@ -136,8 +123,7 @@
 				<SettingsSwitch
 					label="Show Animations"
 					description="Enable smooth transitions and animations"
-					checked={showAnimations}
-					onchange={handleAnimationsChange}
+					bind:checked={showAnimations}
 				/>
 			</div>
 

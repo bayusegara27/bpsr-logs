@@ -181,7 +181,7 @@
 						</tr>
 					</thead>
 					<tbody>
-						{#each dpsData.playerRows as player, index}
+						{#each dpsData.playerRows as player, index (player.name + player.totalValue)}
 							<tr class="border-b border-border hover:bg-accent/50 transition-colors">
 								<td class="px-4 py-3">
 									<span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-chart-1 to-chart-2 text-white font-bold text-sm">
@@ -235,7 +235,7 @@
 						</tr>
 					</thead>
 					<tbody>
-						{#each healData.playerRows as player, index}
+						{#each healData.playerRows as player, index (player.name + player.totalValue)}
 							<tr class="border-b border-border hover:bg-accent/50 transition-colors">
 								<td class="px-4 py-3">
 									<span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-chart-3 to-chart-4 text-white font-bold text-sm">

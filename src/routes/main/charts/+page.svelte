@@ -138,7 +138,7 @@
 					</defs>
 					
 					<!-- Data points -->
-					{#each dpsHistory as point, i}
+					{#each dpsHistory as point, i (`${point.timestamp}-${i}`)}
 						<circle
 							cx={(i / (MAX_HISTORY - 1)) * chartWidth}
 							cy={chartHeight - (point.totalDps / maxDps) * chartHeight}
@@ -163,7 +163,7 @@
 			<div class="comparison-section bg-card rounded-xl shadow-xl border border-border p-6 animate-in slide-in-from-bottom-6 duration-700">
 				<h2 class="text-2xl font-bold mb-4">Player DPS Comparison</h2>
 				<div class="bars-container space-y-4">
-					{#each dpsData.playerRows.slice(0, 10) as player, index}
+					{#each dpsData.playerRows.slice(0, 10) as player, index (player.name + player.totalValue)}
 						{@const topPlayerDps = dpsData.playerRows[0]?.valuePerSec || 1}
 						<div class="player-bar group">
 							<div class="flex justify-between items-center mb-2">
