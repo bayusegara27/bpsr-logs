@@ -95,26 +95,30 @@ lt --port 1420
 
 When accessing through a web browser, you'll have access to:
 
-### ✅ Fully Supported
-- Real-time DPS meter display
-- Live statistics dashboard  
-- DPS charts and analytics
-- Player and skill breakdowns
-- All overlay views (DPS, healing, etc.)
-- Live data updates (via polling)
+### ✅ Fully Supported (NEW!)
+- **Real-time DPS meter display** with live updates
+- **Live statistics dashboard** with export functionality
+- **DPS charts and analytics** with real-time graphing
+- **Player and skill breakdowns** with detailed stats
+- **All overlay views** (DPS, healing, boss-only, etc.)
+- **Encounter controls** (reset, pause, resume)
+- **Live data updates** via HTTP API
+- **Settings management** (most features)
 
-### ⚠️ Limited/Experimental
-- Settings and configuration (some features may not work)
-- Encounter reset and control functions (may require desktop app)
+### ⚠️ Desktop-Only Features
+- Window blur effects (Tauri-specific)
+- Clipboard operations (browser security restrictions)
+- Some advanced window management features
 
-**Note**: The desktop app provides the backend functionality. All data processing, packet capture, and computation happens in the desktop app. The web interface is primarily for viewing/monitoring purposes.
+**What Changed**: The app now includes a complete HTTP API server (port 3000) that provides full access to all DPS tracking functionality. The frontend automatically detects whether it's running in Tauri or browser mode and uses the appropriate communication method.
 
-### Future Improvements
+### Technical Details
 
-In future versions, we plan to add full HTTP API support to enable all features in web browser mode, including:
-- Full settings management from browser
-- Encounter control (reset, pause, etc.)
-- Advanced configuration options
+The app runs two servers:
+- **Port 1420**: Frontend (Vite dev server)
+- **Port 3000**: HTTP API (Axum/Rust backend)
+
+When you access the app through a tunnel, it uses the HTTP API for all data operations. The experience is seamless - you get the same functionality as the desktop app!
 
 ## Sharing Your Stats
 

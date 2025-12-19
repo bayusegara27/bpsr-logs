@@ -38,9 +38,18 @@ https://github.com/winjwinj/bpsr-logs/releases/latest
 
 # Web Browser Access
 
-You can access the BPSR Logs interface in a web browser using tunnel services like cloudflared. This allows you to view your DPS stats remotely from another device.
+You can access the BPSR Logs interface in a web browser using tunnel services like cloudflared. This allows you to view and control your DPS stats remotely from another device with **full functionality**!
 
 **📖 [See detailed Web Access Guide](WEB_ACCESS.md)** for step-by-step instructions.
+
+## What's New ✨
+
+**Full HTTP API Support** - The app now includes a complete HTTP API server that enables all features to work in web browsers:
+- ✅ Real-time DPS and healing stats
+- ✅ Player and skill breakdowns
+- ✅ Encounter reset and pause controls
+- ✅ All interactive features working in browser
+- ✅ Automatic environment detection (seamless experience)
 
 ## Quick Start
 
@@ -74,14 +83,22 @@ These scripts will:
    ```
 4. **Access via browser** - Use the provided URL (e.g., `https://xxx.trycloudflare.com`)
 
-## Current Limitations
+## How It Works
+
+The app now runs two servers simultaneously:
+- **Port 1420**: Vite dev server for the web interface
+- **Port 3000**: HTTP API server for data access
+
+When accessed from a browser, the app automatically detects the environment and uses the HTTP API instead of Tauri's native invoke. You get the same experience whether using the desktop app or web browser!
+
+## Notes
 
 ⚠️ **Important**: The desktop app must remain running for the web interface to work. The desktop app handles:
 - Game packet capture (WinDivert)
 - Data processing and statistics calculation
-- Serving the web interface
+- Serving the HTTP API
 
-**Note**: Some interactive features (settings, encounter reset) may have limited functionality when accessed from an external browser in the current version. The primary use case is viewing/monitoring DPS stats remotely.
+Some desktop-specific features (like window blur effects) are gracefully disabled in browser mode.
 
 ## Use Cases
 
