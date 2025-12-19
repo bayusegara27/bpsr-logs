@@ -28,6 +28,8 @@ pub async fn start_http_server(
     player_cache: PlayerCacheMutex,
     bptimer_enabled: BPTimerEnabledMutex,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    info!("🔧 Building HTTP API server state...");
+    
     let state = Arc::new(AppState {
         encounter,
         player_state,
@@ -35,56 +37,53 @@ pub async fn start_http_server(
         bptimer_enabled,
     });
 
+    info!("🔧 Configuring CORS...");
     let cors = CorsLayer::new()
         .allow_origin(Any)
         .allow_methods(Any)
         .allow_headers(Any);
 
+    info!("🔧 Setting up API routes...");
+    
+    // Build routes first, then add state
     let api_routes = Router::new()
         .route("/header-info", get(api_get_header_info))
         .route("/dps-player-window", get(api_get_dps_player_window))
         .route("/dps-skill-window/:player_uid", get(api_get_dps_skill_window))
-        .route(
-            "/dps-boss-only-player-window",
-            get(api_get_dps_boss_only_player_window),
-        )
-        .route(
-            "/dps-boss-only-skill-window/:player_uid",
-            get(api_get_dps_boss_only_skill_window),
-        )
+        .route("/dps-boss-only-player-window", get(api_get_dps_boss_only_player_window))
+        .route("/dps-boss-only-skill-window/:player_uid", get(api_get_dps_boss_only_skill_window))
         .route("/heal-player-window", get(api_get_heal_player_window))
-        .route(
-            "/heal-skill-window/:player_uid",
-            get(api_get_heal_skill_window),
-        )
+        .route("/heal-skill-window/:player_uid", get(api_get_heal_skill_window))
         .route("/test-player-window", get(api_get_test_player_window))
-        .route(
-            "/test-skill-window/:player_uid",
-            get(api_get_test_skill_window),
-        )
+        .route("/test-skill-window/:player_uid", get(api_get_test_skill_window))
         .route("/reset-encounter", post(api_reset_encounter))
         .route("/toggle-pause-encounter", post(api_toggle_pause_encounter))
         .route("/hard-reset", post(api_hard_reset))
         .route("/set-bptimer-enabled", post(api_set_bptimer_enabled))
         .with_state(state);
 
-    let app = Router::new().nest("/api", api_routes).layer(cors);
+    info!("🔧 Creating main router with CORS layer...");
+    let app = Router::new()
+        .nest("/api", api_routes)
+        .layer(cors);
 
     // Try ports 3000-3010 to find an available one
     info!("🚀 Attempting to start HTTP API server...");
     let mut port = 3000;
     let listener = loop {
         let addr = SocketAddr::from(([0, 0, 0, 0], port));
-        info!("📡 Attempting to bind HTTP API server to port {}...", port);
+        info!("📡 Attempting to bind HTTP API server to {}...", addr);
         match tokio::net::TcpListener::bind(addr).await {
             Ok(listener) => {
-                info!("✅ HTTP API server successfully started on http://{}", addr);
-                info!("🌐 Web browser can access the API at http://localhost:{}/api", port);
+                info!("✅ HTTP API server successfully bound to http://{}", addr);
+                info!("🌐 Web browser can access the API at:");
+                info!("   http://localhost:{}/api", port);
+                info!("   http://127.0.0.1:{}/api", port);
                 info!("📊 Available endpoints:");
-                info!("   - GET /api/header-info");
-                info!("   - GET /api/dps-player-window");
-                info!("   - GET /api/heal-player-window");
-                info!("   - POST /api/reset-encounter");
+                info!("   GET  http://localhost:{}/api/header-info", port);
+                info!("   GET  http://localhost:{}/api/dps-player-window", port);
+                info!("   GET  http://localhost:{}/api/heal-player-window", port);
+                info!("   POST http://localhost:{}/api/reset-encounter", port);
                 break listener;
             }
             Err(e) => {
@@ -92,18 +91,27 @@ pub async fn start_http_server(
                     warn!("⚠️  Port {} is already in use ({}), trying port {}...", port, e, port + 1);
                     port += 1;
                 } else {
-                    warn!("❌ Could not bind HTTP API server to any port 3000-3010: {}", e);
+                    let err_msg = format!("Could not bind HTTP API server to any port 3000-3010: {}", e);
+                    warn!("❌ {}", err_msg);
                     warn!("💡 Please close any applications using these ports and restart");
-                    return Err(format!("Failed to bind HTTP API server: {}", e).into());
+                    return Err(err_msg.into());
                 }
             }
         }
     };
 
-    info!("🎯 HTTP API server is ready and listening for requests");
-    axum::serve(listener, app).await?;
-
-    Ok(())
+    info!("🎯 HTTP API server is ready - starting to serve requests...");
+    
+    match axum::serve(listener, app).await {
+        Ok(_) => {
+            info!("✅ HTTP API server shut down gracefully");
+            Ok(())
+        }
+        Err(e) => {
+            warn!("❌ HTTP API server error: {}", e);
+            Err(Box::new(e))
+        }
+    }
 }
 
 fn get_header_info_from_encounter(encounter: &Encounter) -> Result<serde_json::Value, String> {
