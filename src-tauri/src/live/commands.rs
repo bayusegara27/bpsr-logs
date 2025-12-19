@@ -43,11 +43,12 @@ pub fn disable_blur(app: tauri::AppHandle) {
 pub fn copy_sync_container_data(app: tauri::AppHandle) {
     let state = app.state::<EncounterMutex>();
     let encounter = state.lock().unwrap();
-    if let Some(local_player) = &encounter.local_player
-        && let Ok(json) = serde_json::to_string_pretty(local_player)
-        && app.clipboard().write_text(json).is_err()
-    {
-        info!("No SyncContainerData found. Nothing copied to the clipboard.");
+    if let Some(local_player) = &encounter.local_player {
+        if let Ok(json) = serde_json::to_string_pretty(local_player) {
+            if app.clipboard().write_text(json).is_err() {
+                info!("No SyncContainerData found. Nothing copied to the clipboard.");
+            }
+        }
     }
 }
 
