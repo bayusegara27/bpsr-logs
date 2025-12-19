@@ -302,6 +302,16 @@ pub fn get_skill_window(
     player_state: &std::sync::MutexGuard<crate::live::player_state::PlayerState>,
 ) -> Result<SkillsWindow, String> {
     let encounter = state.lock().unwrap();
+    get_skill_window_impl(encounter, player_uid, stat_type, player_cache, player_state)
+}
+
+pub fn get_skill_window_impl(
+    encounter: std::sync::MutexGuard<crate::live::opcodes_models::Encounter>,
+    player_uid: i64,
+    stat_type: StatType,
+    player_cache: &std::sync::MutexGuard<crate::live::player_state::PlayerCache>,
+    player_state: &std::sync::MutexGuard<crate::live::player_state::PlayerState>,
+) -> Result<SkillsWindow, String> {
 
     let Some(player) = encounter.entity_uid_to_entity.get(&player_uid) else {
         return Err(format!("Could not find player with uid {player_uid}"));

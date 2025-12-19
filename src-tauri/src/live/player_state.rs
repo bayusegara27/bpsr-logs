@@ -1,6 +1,6 @@
 use crate::live::opcodes_models::class::{Class, ClassSpec};
 use std::collections::HashMap;
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 
 /// Persistent player identity data that survives combat/encounter resets
 /// This stores the LOCAL player's account information separately from combat stats
@@ -43,7 +43,7 @@ impl PlayerState {
     }
 }
 
-pub type PlayerStateMutex = Mutex<PlayerState>;
+pub type PlayerStateMutex = Arc<Mutex<PlayerState>>;
 
 /// Cached player data entry
 #[derive(Debug, Default, Clone)]
@@ -100,4 +100,4 @@ impl PlayerCache {
     }
 }
 
-pub type PlayerCacheMutex = Mutex<PlayerCache>;
+pub type PlayerCacheMutex = Arc<Mutex<PlayerCache>>;
