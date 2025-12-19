@@ -45,7 +45,7 @@ pub async fn start_http_server(
 
     info!("🔧 Setting up API routes...");
     
-    // Build routes and attach application state
+    // Build routes (without state first to avoid nesting issues)
     let api_routes = Router::new()
         .route("/header-info", get(api_get_header_info))
         .route("/dps-player-window", get(api_get_dps_player_window))
@@ -71,13 +71,13 @@ pub async fn start_http_server(
         .route("/reset-encounter", post(api_reset_encounter))
         .route("/toggle-pause-encounter", post(api_toggle_pause_encounter))
         .route("/hard-reset", post(api_hard_reset))
-        .route("/set-bptimer-enabled", post(api_set_bptimer_enabled))
-        .with_state(state);
+        .route("/set-bptimer-enabled", post(api_set_bptimer_enabled));
 
     info!("🔧 Creating main router with CORS layer...");
     let app = Router::new()
         .nest("/api", api_routes)
-        .layer(cors);
+        .layer(cors)
+        .with_state(state);
 
     // Try ports 3000-3010 to find an available one
     info!("🚀 Attempting to start HTTP API server...");
