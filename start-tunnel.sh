@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e  # Exit on error
 # BPSR Logs - Quick Tunnel Setup Script for Linux/Mac
 # This script helps you quickly set up a cloudflared tunnel to access BPSR Logs from a web browser
 
@@ -21,8 +22,21 @@ fi
 echo "[OK] cloudflared is installed"
 echo ""
 
-# Check if port 1420 is listening
-if ! netstat -an 2>/dev/null | grep -q ":1420.*LISTEN" && ! lsof -i :1420 &>/dev/null; then
+# Check if port 1420 is listening - try multiple methods for portability
+port_listening=false
+
+# Method 1: Try lsof (common on Mac/Linux)
+if command -v lsof &> /dev/null && lsof -i :1420 -sTCP:LISTEN &>/dev/null; then
+    port_listening=true
+# Method 2: Try netstat (fallback)
+elif command -v netstat &> /dev/null && netstat -an 2>/dev/null | grep -q ":1420 .*LISTEN"; then
+    port_listening=true
+# Method 3: Try ss (modern Linux)
+elif command -v ss &> /dev/null && ss -ln 2>/dev/null | grep -q ":1420 .*LISTEN"; then
+    port_listening=true
+fi
+
+if [ "$port_listening" = false ]; then
     echo "[WARNING] BPSR Logs doesn't appear to be running"
     echo "          (Port 1420 is not listening)"
     echo ""

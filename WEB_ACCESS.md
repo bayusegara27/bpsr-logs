@@ -29,9 +29,14 @@ scoop install cloudflared
 
 **Linux (Debian/Ubuntu):**
 ```bash
+# Download and verify the package
 wget https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+# Always verify packages from trusted sources before installing
+# You can check the SHA256 checksum on the GitHub releases page
 sudo dpkg -i cloudflared-linux-amd64.deb
 ```
+
+**Note**: Always download from official sources (github.com/cloudflare) and verify checksums when available.
 
 ### Usage
 
