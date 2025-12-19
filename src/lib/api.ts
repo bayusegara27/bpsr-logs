@@ -28,9 +28,14 @@ class UniversalAPI {
 	}
 
 	private async httpFetch<T>(endpoint: string, options?: RequestInit): Promise<T> {
-		const baseUrl = window.location.origin;
+		// Use port 3000 for HTTP API, not the current window location
+		// This ensures browser access works correctly (Vite on 1420, API on 3000)
+		const apiPort = 3000;
+		const protocol = window.location.protocol;
+		const hostname = window.location.hostname;
+		const baseUrl = `${protocol}//${hostname}:${apiPort}`;
 		const url = `${baseUrl}/api/${endpoint}`;
-		
+
 		try {
 			const response = await fetch(url, {
 				...options,

@@ -1,9 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { commands } from '$lib/bindings';
 	import { api } from '$lib/api';
 	import type { HeaderInfo, PlayersWindow } from '$lib/bindings';
-	import { api } from '$lib/api';
 
 	let headerInfo = $state<HeaderInfo | null>(null);
 	let dpsData = $state<PlayersWindow | null>(null);
