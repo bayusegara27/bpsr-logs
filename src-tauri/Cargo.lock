@@ -463,7 +463,7 @@ dependencies = [
 
 [[package]]
 name = "bpsr-logs"
-version = "0.22.1"
+version = "0.22.2"
 dependencies = [
  "axum",
  "blueprotobuf-lib",
