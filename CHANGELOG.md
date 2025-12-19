@@ -1,3 +1,23 @@
+## v0.22.5 - 2025-12-19
+
+### Changes
+
+- Restructure router to apply state after nesting (f002ac1)
+- Fix Rust edition and pin axum version (30fca05)
+- Initial plan (b82a167)
+
+### Installation
+
+Download the appropriate installer for your platform from the assets below.
+
+- **Windows**: `bpsr-logs_0.22.5_x64_en-US.msi`
+
+### Notes
+
+- Auto-update is enabled - the app will update automatically on next launch
+- Join our [Discord](https://discord.gg/Tcc54ST5BU) for support
+
+
 ## v0.22.4 - 2025-12-19
 
 ### Changes
