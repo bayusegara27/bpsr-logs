@@ -1,3 +1,22 @@
+## v0.22.6 - 2025-12-19
+
+### Changes
+
+- Fix Rust let chains compilation error by using nested if-let statements (3772559)
+- Initial plan (efe6746)
+
+### Installation
+
+Download the appropriate installer for your platform from the assets below.
+
+- **Windows**: `bpsr-logs_0.22.6_x64_en-US.msi`
+
+### Notes
+
+- Auto-update is enabled - the app will update automatically on next launch
+- Join our [Discord](https://discord.gg/Tcc54ST5BU) for support
+
+
 ## v0.22.5 - 2025-12-19
 
 ### Changes
