@@ -7,6 +7,29 @@
 
 BPSR Logs is a "blazingly fast" open source Blue Protocol: Star Resonance DPS meter, written in Rust by [winj](https://github.com/winjwinj). It is heavily inspired by [loa-logs](https://github.com/snoww/loa-logs), and uses reverse engineering work done by [StarResonanceDamageCounter](https://github.com/dmlgzs/StarResonanceDamageCounter) and [@Yuerino](https://github.com/Yuerino).
 
+# Features
+
+## 🎯 Core Features
+- Real-time DPS and healing tracking
+- In-game overlay with live combat statistics
+- Skill breakdown and analysis
+- Boss-only damage filtering
+- Streamer mode for privacy
+
+## 📊 Statistics & Analytics (NEW!)
+- **Statistics Dashboard**: View real-time combat statistics with live updates
+  - Export data as JSON for detailed analysis
+  - Share statistics to clipboard for easy sharing with others
+  - DPS and healing rankings with contribution percentages
+- **DPS Charts**: Visual analytics with live updating charts
+  - Real-time DPS line graphs showing damage over time
+  - Player comparison bars with gradient visualizations
+  - Peak DPS, average DPS, and total damage summaries
+
+## 🔄 Auto-Updates
+- Automatic updates on launch
+- Windows auto-release workflow for seamless releases
+
 # Download
 
 https://github.com/winjwinj/bpsr-logs/releases/latest
@@ -129,6 +152,27 @@ A: Search the message history in the [#i-need-help](https://discord.com/channels
 A: [Yes.](https://i.imgur.com/QsLAntt.png)
 
 # Screenshots
+
+## Statistics Dashboard
+
+View and share your combat statistics with real-time updates, export functionality, and shareable clipboard text.
+
+Features:
+- Live updating DPS, damage, duration, and player count
+- DPS rankings with contribution percentages
+- Healing rankings
+- Export data as JSON
+- Share to clipboard for easy sharing with friends
+
+## DPS Charts
+
+Real-time visual analytics with live updating charts showing damage over time and player comparisons.
+
+Features:
+- Live DPS line chart
+- Player comparison bars with gradient visualizations
+- Peak DPS, average DPS, and total damage summaries
+- Reset encounter functionality
 
 ## In-game Overlay
 
