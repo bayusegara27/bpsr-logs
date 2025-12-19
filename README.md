@@ -36,6 +36,82 @@ https://github.com/winjwinj/bpsr-logs/releases/latest
 
 \*currently only Windows 7 and up is supported
 
+# Web Browser Access
+
+You can access the BPSR Logs interface in a web browser using tunnel services like cloudflared. This allows you to view and control your DPS stats remotely from another device with **full functionality**!
+
+**📖 [See detailed Web Access Guide](WEB_ACCESS.md)** for step-by-step instructions.
+
+## What's New ✨
+
+**Full HTTP API Support** - The app now includes a complete HTTP API server that enables all features to work in web browsers:
+- ✅ Real-time DPS and healing stats
+- ✅ Player and skill breakdowns
+- ✅ Encounter reset and pause controls
+- ✅ All interactive features working in browser
+- ✅ Automatic environment detection (seamless experience)
+
+## Quick Start
+
+### Using the Helper Script (Easiest)
+
+We provide convenient scripts to set up the tunnel for you:
+
+**Windows:**
+```cmd
+start-tunnel.bat
+```
+
+**Linux/Mac:**
+```bash
+./start-tunnel.sh
+```
+
+These scripts will:
+- Check if cloudflared is installed
+- Verify BPSR Logs is running
+- Start the tunnel automatically
+- Display the access URL
+
+### Manual Setup
+
+1. **Start the desktop app** - Run BPSR Logs as normal (required for packet capture)
+2. **Install cloudflared**: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/
+3. **Run tunnel**:
+   ```bash
+   cloudflared tunnel --url http://localhost:1420
+   ```
+4. **Access via browser** - Use the provided URL (e.g., `https://xxx.trycloudflare.com`)
+
+## How It Works
+
+The app now runs two servers simultaneously:
+- **Port 1420**: Vite dev server for the web interface
+- **Port 3000**: HTTP API server for data access
+
+When accessed from a browser, the app automatically detects the environment and uses the HTTP API instead of Tauri's native invoke. You get the same experience whether using the desktop app or web browser!
+
+## Notes
+
+⚠️ **Important**: The desktop app must remain running for the web interface to work. The desktop app handles:
+- Game packet capture (WinDivert)
+- Data processing and statistics calculation
+- Serving the HTTP API
+
+Some desktop-specific features (like window blur effects) are gracefully disabled in browser mode.
+
+## Use Cases
+
+✅ **Works great for:**
+- Viewing your DPS stats on a second monitor or device
+- Sharing your stats with party members in real-time
+- Monitoring combat performance from a mobile device
+- Displaying stats on stream using an OBS browser source
+
+⚠️ **Limited support for:**
+- Changing settings from the web interface
+- Some advanced features that require desktop app integration
+
 # Is it bannable?
 
 ![validation.png](readme/validation.png)

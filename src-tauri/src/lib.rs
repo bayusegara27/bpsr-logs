@@ -1,4 +1,5 @@
 mod build_app;
+mod http_server;
 mod live;
 mod packets;
 
@@ -108,6 +109,28 @@ pub fn run() {
             app.manage(EncounterMutex::default()); // setup encounter state
             app.manage(PlayerStateMutex::default()); // setup player state
             app.manage(PlayerCacheMutex::default()); // setup player cache
+            
+            // Clone state for HTTP server
+            let encounter_http = app.state::<EncounterMutex>().inner().clone();
+            let player_state_http = app.state::<PlayerStateMutex>().inner().clone();
+            let player_cache_http = app.state::<PlayerCacheMutex>().inner().clone();
+            let bptimer_enabled_http = app.state::<crate::live::bptimer_state::BPTimerEnabledMutex>().inner().clone();
+            
+            // Start HTTP API server for web browser access
+            tauri::async_runtime::spawn(async move {
+                if let Err(e) = http_server::start_http_server(
+                    encounter_http,
+                    player_state_http,
+                    player_cache_http,
+                    bptimer_enabled_http,
+                )
+                .await
+                {
+                    warn!("HTTP API server error: {}", e);
+                }
+            });
+            
+            // Start packet capture
             tauri::async_runtime::spawn(
                 async move { live::live_main::start(app_handle.clone()).await },
             );

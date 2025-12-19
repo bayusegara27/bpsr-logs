@@ -2,7 +2,7 @@
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import { SETTINGS } from '$lib/settings-store';
 	import SettingsSwitchDialog from './settings-switch-dialog.svelte';
-	import { commands } from '$lib/bindings';
+	import { api } from '$lib/api';
 
 	const SETTINGS_CATEGORY = 'integration';
 
@@ -12,7 +12,7 @@
 		const currentValue = SETTINGS.integration.state.bptimer;
 		if (currentValue !== previousValue) {
 			previousValue = currentValue;
-			commands.setBptimerEnabled(currentValue).catch((err: unknown) => {
+			api.setBptimerEnabled(currentValue).catch((err: unknown) => {
 				console.error('Failed to update bptimer enabled state:', err);
 			});
 		}

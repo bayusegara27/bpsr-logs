@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { commands, type PlayersWindow } from '$lib/bindings';
+	import { type PlayersWindow } from '$lib/bindings';
+	import { api } from '$lib/api';
 	import { getClassColor } from '$lib/utils.svelte';
 	import { goto } from '$app/navigation';
 	import { getCoreRowModel } from '@tanstack/table-core';
@@ -20,11 +21,11 @@
 
 	async function fetchData() {
 		if (SETTINGS.misc.state.testingMode) {
-			dpsPlayersWindow = await commands.getTestPlayerWindow();
+			dpsPlayersWindow = await api.getTestPlayerWindow();
 		} else if (SETTINGS.general.state.bossOnly) {
-			dpsPlayersWindow = await commands.getDpsBossOnlyPlayerWindow();
+			dpsPlayersWindow = await api.getDpsBossOnlyPlayerWindow();
 		} else {
-			dpsPlayersWindow = await commands.getDpsPlayerWindow();
+			dpsPlayersWindow = await api.getDpsPlayerWindow();
 		}
 	}
 

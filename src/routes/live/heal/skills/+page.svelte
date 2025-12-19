@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { commands, type SkillsWindow } from '$lib/bindings';
+	import { type SkillsWindow } from '$lib/bindings';
+	import { api } from '$lib/api';
 	import { getClassColor } from '$lib/utils.svelte';
 	import { page } from '$app/state';
 	import { createSvelteTable, FlexRender } from '$lib/svelte-table';
@@ -21,8 +22,8 @@
 	async function fetchData() {
 		try {
 			const result = SETTINGS.misc.state.testingMode
-				? await commands.getTestSkillWindow(playerUid)
-				: await commands.getHealSkillWindow(playerUid);
+				? await api.getTestSkillWindow(playerUid)
+				: await api.getHealSkillWindow(playerUid);
 			if (result.status !== 'ok') {
 				console.warn('Failed to get skill window: ', result.error);
 				return;

@@ -11,7 +11,8 @@
 	import RefreshCwIcon from 'virtual:icons/lucide/refresh-cw';
 
 	import { onMount, tick } from 'svelte';
-	import { commands, type HeaderInfo } from '$lib/bindings';
+	import { type HeaderInfo } from '$lib/bindings';
+	import { api } from '$lib/api';
 	import { takeScreenshot, tooltip } from '$lib/utils.svelte';
 	import AbbreviatedNumber from '$lib/components/abbreviated-number.svelte';
 	import { emitTo } from '@tauri-apps/api/event';
@@ -34,10 +35,10 @@
 		) {
 			hasReset = true;
 			console.log(`Resetting as ${SETTINGS.general.state.resetElapsed}s has passed.`);
-			commands.hardReset(); // TODO: this is temporary, switch to resetEncounter once bug is fixed.
+			api.hardReset(); // TODO: this is temporary, switch to resetEncounter once bug is fixed.
 		}
 		try {
-			const result = await commands.getHeaderInfo();
+			const result = await api.getHeaderInfo();
 			if (result.status !== 'ok') {
 				console.warn('Failed to get header: ', result.error);
 				return;
@@ -97,7 +98,7 @@
 	<span>
 		<button
 			onclick={() => {
-				commands.hardReset();
+				api.hardReset();
 				window.location.reload();
 			}}
 			{@attach tooltip(() => 'Temp Fix: Hard Reset')}><RefreshCwIcon /></button
@@ -142,14 +143,14 @@
 		</button>
 		<button
 			onclick={async () => {
-				commands.resetEncounter();
+				api.resetEncounter();
 				window.location.reload(); // TODO: temp fix
 			}}
 			{@attach tooltip(() => 'Reset Encounter')}><TimerResetIcon /></button
 		>
 		<button
 			onclick={() => {
-				commands.togglePauseEncounter();
+				api.togglePauseEncounter();
 				isEncounterPaused = !isEncounterPaused;
 			}}
 		>

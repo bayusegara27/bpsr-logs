@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { commands } from '$lib/bindings';
+	import { api } from '$lib/api';
 	import type { HeaderInfo, PlayersWindow } from '$lib/bindings';
 
 	let headerInfo = $state<HeaderInfo | null>(null);
@@ -11,7 +11,7 @@
 
 	async function updateData() {
 		try {
-			const headerResult = await commands.getHeaderInfo();
+			const headerResult = await api.getHeaderInfo();
 			if (headerResult.status === 'ok') {
 				headerInfo = headerResult.data;
 				
@@ -23,7 +23,7 @@
 				}].slice(-MAX_HISTORY);
 			}
 			
-			dpsData = await commands.getDpsPlayerWindow();
+			dpsData = await api.getDpsPlayerWindow();
 		} catch (error) {
 			console.error('Failed to fetch data:', error);
 		}
@@ -70,7 +70,7 @@
 	async function clearData() {
 		try {
 			dpsHistory = [];
-			await commands.resetEncounter();
+			await api.resetEncounter();
 		} catch (error) {
 			console.error('Failed to reset encounter:', error);
 			// Even if reset fails, we've cleared the UI data

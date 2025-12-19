@@ -27,7 +27,10 @@ export default defineConfig({
 	server: {
 		port: 1420,
 		strictPort: false,
-		host: host || false,
+		// Use TAURI_DEV_HOST if specified, otherwise default to 0.0.0.0 for tunneling support
+		host: host || '0.0.0.0',
+		// HMR configuration: use TAURI_DEV_HOST if set (for special dev environments),
+		// otherwise default HMR will work on the configured host
 		...(host ? { hmr: { protocol: 'ws', host, port: 1421 } } : {}),
 		watch: {
 			// 3. tell vite to ignore watching `src-tauri`
