@@ -78,49 +78,62 @@
 	}
 </script>
 
-<div class="charts-container p-6 space-y-6">
+<div class="charts-container p-6 space-y-6 animate-in fade-in duration-300">
 	<div class="header-section">
-		<h1 class="text-3xl font-bold mb-4">📈 Live DPS Charts</h1>
-		<p class="text-gray-600 mb-6">Real-time damage per second visualization and analysis</p>
+		<h1 class="text-3xl font-bold mb-2 bg-gradient-to-r from-primary to-chart-2 bg-clip-text text-transparent">📈 Live DPS Charts</h1>
+		<p class="text-muted-foreground mb-6">Real-time damage per second visualization and analysis</p>
 		
-		<div class="action-buttons flex gap-4 mb-6">
+		<div class="action-buttons flex flex-wrap gap-3 mb-6">
 			<button 
 				onclick={clearData}
-				class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
+				class="flex items-center gap-2 px-4 py-2 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90 transition-all hover:scale-105 shadow-md"
 			>
-				🔄 Reset Encounter
+				<span>🔄</span>
+				<span>Reset Encounter</span>
 			</button>
 		</div>
 	</div>
 
 	{#if headerInfo && dpsHistory.length > 0}
-		<div class="chart-section bg-white rounded-lg shadow-lg p-6">
+		<div class="chart-section bg-card rounded-xl shadow-xl border border-border p-6 animate-in slide-in-from-bottom-4 duration-500">
 			<h2 class="text-2xl font-bold mb-4">DPS Over Time</h2>
-			<div class="chart-container relative bg-gray-50 rounded border border-gray-200 p-4">
+			<div class="chart-container relative bg-muted/30 rounded-lg border border-border p-6 backdrop-blur-sm">
 				<svg viewBox="0 0 {chartWidth} {chartHeight}" class="w-full h-auto">
 					<!-- Grid lines -->
 					<defs>
 						<pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-							<path d="M 40 0 L 0 0 0 40" fill="none" stroke="#e5e7eb" stroke-width="1"/>
+							<path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.1"/>
 						</pattern>
 					</defs>
 					<rect width={chartWidth} height={chartHeight} fill="url(#grid)" />
 					
-					<!-- Chart line -->
+					<!-- Chart line with glow -->
+					<defs>
+						<filter id="glow">
+							<feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+							<feMerge>
+								<feMergeNode in="coloredBlur"/>
+								<feMergeNode in="SourceGraphic"/>
+							</feMerge>
+						</filter>
+					</defs>
+					
 					<path
 						d={getChartPath(dpsHistory)}
 						fill="none"
 						stroke="url(#gradient)"
-						stroke-width="3"
+						stroke-width="4"
 						stroke-linecap="round"
 						stroke-linejoin="round"
+						filter="url(#glow)"
 					/>
 					
 					<!-- Gradient -->
 					<defs>
 						<linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-							<stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
-							<stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+							<stop offset="0%" style="stop-color:oklch(var(--chart-1));stop-opacity:1" />
+							<stop offset="50%" style="stop-color:oklch(var(--chart-2));stop-opacity:1" />
+							<stop offset="100%" style="stop-color:oklch(var(--chart-3));stop-opacity:1" />
 						</linearGradient>
 					</defs>
 					
@@ -129,44 +142,47 @@
 						<circle
 							cx={(i / (MAX_HISTORY - 1)) * chartWidth}
 							cy={chartHeight - (point.totalDps / maxDps) * chartHeight}
-							r="3"
-							fill="#3b82f6"
+							r="4"
+							fill="oklch(var(--chart-1))"
+							class="animate-in fade-in duration-200"
+							style="animation-delay: {i * 20}ms"
 						/>
 					{/each}
 				</svg>
 				
-				<div class="chart-labels flex justify-between text-sm text-gray-600 mt-2">
-					<span>Start</span>
-					<span class="font-semibold">Current DPS: {formatNumber(headerInfo.totalDps)}</span>
-					<span>Now</span>
+				<div class="chart-labels flex justify-between text-sm text-muted-foreground mt-4">
+					<span class="font-medium">Start</span>
+					<span class="font-bold text-foreground bg-accent/50 px-3 py-1 rounded-full">Current DPS: {formatNumber(headerInfo.totalDps)}</span>
+					<span class="font-medium">Now</span>
 				</div>
 			</div>
 		</div>
 
 		<!-- Player comparison bars -->
 		{#if dpsData && dpsData.playerRows.length > 0}
-			<div class="comparison-section bg-white rounded-lg shadow-lg p-6">
+			<div class="comparison-section bg-card rounded-xl shadow-xl border border-border p-6 animate-in slide-in-from-bottom-6 duration-700">
 				<h2 class="text-2xl font-bold mb-4">Player DPS Comparison</h2>
-				<div class="bars-container space-y-3">
+				<div class="bars-container space-y-4">
 					{#each dpsData.playerRows.slice(0, 10) as player, index}
 						{@const topPlayerDps = dpsData.playerRows[0]?.valuePerSec || 1}
-						<div class="player-bar">
-							<div class="flex justify-between items-center mb-1">
-								<div class="flex items-center gap-2">
-									<span class="rank-badge w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white text-xs flex items-center justify-center font-bold">
+						<div class="player-bar group">
+							<div class="flex justify-between items-center mb-2">
+								<div class="flex items-center gap-3">
+									<span class="rank-badge w-9 h-9 rounded-full bg-gradient-to-br from-chart-1 via-chart-2 to-chart-3 text-white text-sm flex items-center justify-center font-bold shadow-lg group-hover:scale-110 transition-transform">
 										{index + 1}
 									</span>
-									<span class="font-medium">{player.name}</span>
-									<span class="text-xs text-gray-500">{player.className}</span>
+									<span class="font-semibold text-base">{player.name}</span>
+									<span class="text-sm text-muted-foreground px-2 py-1 bg-muted rounded-md">{player.className}</span>
 								</div>
-								<span class="text-sm font-semibold">{formatNumber(player.valuePerSec)}/s</span>
+								<span class="text-sm font-bold text-chart-1">{formatNumber(player.valuePerSec)}/s</span>
 							</div>
-							<div class="progress-bar w-full h-8 bg-gray-200 rounded-lg overflow-hidden relative">
+							<div class="progress-bar w-full h-10 bg-muted/50 rounded-xl overflow-hidden relative border border-border shadow-inner group-hover:shadow-md transition-all">
 								<div 
-									class="h-full bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 transition-all duration-500 flex items-center justify-end pr-3"
+									class="h-full bg-gradient-to-r from-chart-1 via-chart-2 to-chart-3 transition-all duration-700 ease-out flex items-center justify-end pr-4 relative overflow-hidden"
 									style="width: {(player.valuePerSec / topPlayerDps) * 100}%"
 								>
-									<span class="text-white text-xs font-semibold">
+									<div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer"></div>
+									<span class="text-white text-sm font-bold drop-shadow-lg relative z-10">
 										{formatNumber(player.totalValue)} total
 									</span>
 								</div>
@@ -178,27 +194,27 @@
 		{/if}
 
 		<!-- Stats summary -->
-		<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-			<div class="stat-box bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-lg shadow">
-				<div class="text-sm opacity-90">Peak DPS</div>
-				<div class="text-2xl font-bold">{formatNumber(maxDps)}</div>
+		<div class="grid grid-cols-1 md:grid-cols-3 gap-4 animate-in slide-in-from-bottom-8 duration-900">
+			<div class="stat-box group bg-gradient-to-br from-chart-1 to-chart-2 text-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300">
+				<div class="text-sm opacity-90 font-medium">Peak DPS</div>
+				<div class="text-3xl font-bold mt-2 group-hover:scale-110 transition-transform">{formatNumber(maxDps)}</div>
 			</div>
-			<div class="stat-box bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 rounded-lg shadow">
-				<div class="text-sm opacity-90">Average DPS</div>
-				<div class="text-2xl font-bold">
+			<div class="stat-box group bg-gradient-to-br from-chart-2 to-chart-3 text-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300">
+				<div class="text-sm opacity-90 font-medium">Average DPS</div>
+				<div class="text-3xl font-bold mt-2 group-hover:scale-110 transition-transform">
 					{formatNumber(dpsHistory.reduce((sum, d) => sum + d.totalDps, 0) / dpsHistory.length)}
 				</div>
 			</div>
-			<div class="stat-box bg-gradient-to-br from-pink-500 to-pink-600 text-white p-6 rounded-lg shadow">
-				<div class="text-sm opacity-90">Total Damage</div>
-				<div class="text-2xl font-bold">{formatNumber(headerInfo.totalDmg)}</div>
+			<div class="stat-box group bg-gradient-to-br from-chart-3 to-chart-4 text-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300">
+				<div class="text-sm opacity-90 font-medium">Total Damage</div>
+				<div class="text-3xl font-bold mt-2 group-hover:scale-110 transition-transform">{formatNumber(headerInfo.totalDmg)}</div>
 			</div>
 		</div>
 	{:else}
-		<div class="empty-state text-center py-16 bg-gray-50 rounded-lg">
-			<div class="text-6xl mb-4">📊</div>
+		<div class="empty-state text-center py-20 bg-card rounded-xl border border-border shadow-lg">
+			<div class="text-7xl mb-4 animate-bounce">📊</div>
 			<h2 class="text-2xl font-bold mb-2">No Data Yet</h2>
-			<p class="text-gray-600">Start combat to see real-time DPS charts and analytics</p>
+			<p class="text-muted-foreground">Start combat to see real-time DPS charts and analytics</p>
 		</div>
 	{/if}
 </div>
@@ -210,14 +226,27 @@
 	}
 	
 	.stat-box {
-		transition: transform 0.2s;
+		transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 	}
 	
 	.stat-box:hover {
-		transform: translateY(-2px);
+		transform: translateY(-4px) scale(1.02);
 	}
 	
 	.progress-bar {
-		box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+		box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.15);
+	}
+	
+	@keyframes shimmer {
+		0% {
+			transform: translateX(-100%);
+		}
+		100% {
+			transform: translateX(100%);
+		}
+	}
+	
+	.animate-shimmer {
+		animation: shimmer 3s infinite;
 	}
 </style>
