@@ -36,6 +36,39 @@ https://github.com/winjwinj/bpsr-logs/releases/latest
 
 \*currently only Windows 7 and up is supported
 
+# Web Browser Access
+
+You can access the DPS meter in a web browser (in addition to the desktop window) by using a tunnel service like cloudflared:
+
+## Setup Instructions
+
+1. **Start the application** - Run the desktop app as normal. This starts the packet capture and data processing.
+
+2. **Install cloudflared** (or any other tunnel service):
+   ```bash
+   # Download from: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/
+   ```
+
+3. **Create a tunnel** to expose the local server:
+   ```bash
+   cloudflared tunnel --url http://localhost:1420
+   ```
+
+4. **Access via browser** - Cloudflared will provide a public URL (e.g., `https://xxx.trycloudflare.com`) that you can use to access the meter from any device with a web browser.
+
+### Alternative Tunneling Services
+
+- **ngrok**: `ngrok http 1420`
+- **localtunnel**: `lt --port 1420`
+- **VS Code Port Forwarding**: If using VS Code Remote, ports are automatically forwarded
+
+### Notes
+
+- The desktop app must be running for the web interface to work (it provides the packet capture and data processing)
+- The web interface will have the same functionality as the desktop window
+- You can share the tunnel URL with others to let them view your DPS stats remotely
+- For security, only share the URL with people you trust
+
 # Is it bannable?
 
 ![validation.png](readme/validation.png)

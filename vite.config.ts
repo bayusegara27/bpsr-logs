@@ -27,7 +27,7 @@ export default defineConfig({
 	server: {
 		port: 1420,
 		strictPort: false,
-		host: host || false,
+		host: '0.0.0.0', // Allow external access for tunneling/port forwarding
 		...(host ? { hmr: { protocol: 'ws', host, port: 1421 } } : {}),
 		watch: {
 			// 3. tell vite to ignore watching `src-tauri`
