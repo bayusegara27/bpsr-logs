@@ -28,6 +28,8 @@ export default defineConfig({
 		port: 1420,
 		strictPort: false,
 		host: '0.0.0.0', // Allow external access for tunneling/port forwarding
+		// HMR configuration: use TAURI_DEV_HOST if set (for special dev environments),
+		// otherwise default HMR will work on 0.0.0.0
 		...(host ? { hmr: { protocol: 'ws', host, port: 1421 } } : {}),
 		watch: {
 			// 3. tell vite to ignore watching `src-tauri`
