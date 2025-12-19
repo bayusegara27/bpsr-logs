@@ -46,12 +46,29 @@ pub async fn start_static_server(
         .nest_service("/", serve_dir)
         .layer(cors);
 
-    let addr = SocketAddr::from(([0, 0, 0, 0], 1420));
-    info!("Static file server starting on http://{}", addr);
-    info!("Serving frontend from: {}", frontend_dir.display());
-    info!("Web browser can access the app at http://localhost:1420");
+    // Try ports 1420-1430 to find an available one
+    let mut port = 1420;
+    let listener = loop {
+        let addr = SocketAddr::from(([0, 0, 0, 0], port));
+        match tokio::net::TcpListener::bind(addr).await {
+            Ok(listener) => {
+                info!("Static file server starting on http://{}", addr);
+                info!("Serving frontend from: {}", frontend_dir.display());
+                info!("Web browser can access the app at http://localhost:{}", port);
+                break listener;
+            }
+            Err(e) => {
+                if port < 1430 {
+                    warn!("Port {} is in use, trying next port: {}", port, e);
+                    port += 1;
+                } else {
+                    warn!("Could not bind static file server to any port 1420-1430: {}", e);
+                    return Err(format!("Failed to bind static file server: {}", e).into());
+                }
+            }
+        }
+    };
 
-    let listener = tokio::net::TcpListener::bind(addr).await?;
     axum::serve(listener, app).await?;
 
     Ok(())
