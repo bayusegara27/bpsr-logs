@@ -50,12 +50,24 @@ pub async fn start_http_server(
         .route("/header-info", get(api_get_header_info))
         .route("/dps-player-window", get(api_get_dps_player_window))
         .route("/dps-skill-window/:player_uid", get(api_get_dps_skill_window))
-        .route("/dps-boss-only-player-window", get(api_get_dps_boss_only_player_window))
-        .route("/dps-boss-only-skill-window/:player_uid", get(api_get_dps_boss_only_skill_window))
+        .route(
+            "/dps-boss-only-player-window",
+            get(api_get_dps_boss_only_player_window),
+        )
+        .route(
+            "/dps-boss-only-skill-window/:player_uid",
+            get(api_get_dps_boss_only_skill_window),
+        )
         .route("/heal-player-window", get(api_get_heal_player_window))
-        .route("/heal-skill-window/:player_uid", get(api_get_heal_skill_window))
+        .route(
+            "/heal-skill-window/:player_uid",
+            get(api_get_heal_skill_window),
+        )
         .route("/test-player-window", get(api_get_test_player_window))
-        .route("/test-skill-window/:player_uid", get(api_get_test_skill_window))
+        .route(
+            "/test-skill-window/:player_uid",
+            get(api_get_test_skill_window),
+        )
         .route("/reset-encounter", post(api_reset_encounter))
         .route("/toggle-pause-encounter", post(api_toggle_pause_encounter))
         .route("/hard-reset", post(api_hard_reset))

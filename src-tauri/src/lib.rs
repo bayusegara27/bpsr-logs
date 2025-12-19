@@ -26,6 +26,11 @@ use tauri_specta::{Builder, collect_commands};
 pub const WINDOW_LIVE_LABEL: &str = "live";
 pub const WINDOW_MAIN_LABEL: &str = "main";
 
+// Server initialization delays to prevent race conditions
+// These delays ensure proper async runtime initialization and avoid port binding conflicts
+const HTTP_API_SERVER_INIT_DELAY_MS: u64 = 500;
+const STATIC_FILE_SERVER_INIT_DELAY_MS: u64 = 1000;
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     // Ignored in production GH action
@@ -126,7 +131,7 @@ pub fn run() {
                 info!("🔄 HTTP API server task started");
                 // Add a delay to ensure the tokio runtime is fully initialized
                 // This helps prevent potential race conditions during startup
-                tokio::time::sleep(tokio::time::Duration::from_millis(500)).await;
+                tokio::time::sleep(tokio::time::Duration::from_millis(HTTP_API_SERVER_INIT_DELAY_MS)).await;
                 info!("🔄 HTTP API server task ready to initialize...");
                 
                 match http_server::start_http_server(
@@ -156,7 +161,7 @@ pub fn run() {
                 info!("🔄 Static file server task started");
                 // Add a delay to ensure proper initialization order
                 // Start after HTTP API server to avoid conflicts
-                tokio::time::sleep(tokio::time::Duration::from_millis(1000)).await;
+                tokio::time::sleep(tokio::time::Duration::from_millis(STATIC_FILE_SERVER_INIT_DELAY_MS)).await;
                 info!("🔄 Static file server task ready to initialize...");
                 
                 // Try to find the frontend build directory
