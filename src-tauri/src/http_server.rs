@@ -45,7 +45,7 @@ pub async fn start_http_server(
 
     info!("🔧 Setting up API routes...");
     
-    // Build routes first, then add state
+    // Build routes and attach application state
     let api_routes = Router::new()
         .route("/header-info", get(api_get_header_info))
         .route("/dps-player-window", get(api_get_dps_player_window))

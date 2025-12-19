@@ -30,7 +30,8 @@ This guide helps you resolve issues when trying to access BPSR Logs through a we
 4. **Try accessing with different URLs**
    - `http://localhost:3000/api/header-info`
    - `http://127.0.0.1:3000/api/header-info`
-   - `http://0.0.0.0:3000/api/header-info` (may not work on all browsers)
+   
+   Note: If using a tunnel service, use the tunnel URL instead (e.g., `https://xxx.trycloudflare.com/api/header-info`)
 
 5. **Check the application logs**
    - The logs will show detailed information about what went wrong

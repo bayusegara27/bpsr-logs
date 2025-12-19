@@ -5,7 +5,7 @@
 The application was crashing during startup when trying to initialize the HTTP API server. The error logs showed:
 
 ```
-[INFO] App crashed! Info: PanicHookInfo { payload: Any { .. }, location: Location { file: "src\\http_server.rs", line: 46, column: 10 }
+[INFO] App crashed! Info: PanicHookInfo { payload: Any { .. }, location: Location { file: "src\\http_server.rs", during router setup }
 ```
 
 This prevented users from accessing:
@@ -14,7 +14,7 @@ This prevented users from accessing:
 
 ## Root Cause Analysis
 
-The panic was occurring during the HTTP server initialization phase, specifically during the router setup. The issue appeared to be related to:
+The panic was occurring during the HTTP server initialization phase, specifically during the router setup in `http_server.rs`. The issue appeared to be related to:
 
 1. **Race Conditions**: The async tasks were starting too quickly without proper initialization delays
 2. **Error Handling**: Errors in the server initialization weren't being caught properly

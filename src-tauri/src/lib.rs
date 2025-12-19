@@ -125,7 +125,7 @@ pub fn run() {
             let bptimer_enabled_http = app.state::<crate::live::bptimer_state::BPTimerEnabledMutex>().inner().clone();
             
             // Start HTTP API server for web browser access (port 3000-3010)
-            // This runs in a separate async task to not block the main app startup
+            // This runs in a separate async task to avoid blocking application initialization
             info!("📡 Starting HTTP API server...");
             tauri::async_runtime::spawn(async move {
                 info!("🔄 HTTP API server task started");
@@ -154,7 +154,7 @@ pub fn run() {
             
             // Start static file server for web browser access (port 1420-1430)
             // This serves the built frontend files, allowing tunnel access in production
-            // This runs in a separate async task to not block the main app startup
+            // This runs in a separate async task to avoid blocking application initialization
             info!("📂 Starting static file server...");
             let app_handle_static = app_handle.clone();
             tauri::async_runtime::spawn(async move {
