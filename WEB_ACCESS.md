@@ -90,12 +90,26 @@ lt --port 1420
 
 When accessing through a web browser, you'll have access to:
 
-- ✅ Real-time DPS meter
-- ✅ Live statistics dashboard  
-- ✅ DPS charts and analytics
-- ✅ Player and skill breakdowns
-- ✅ All overlay views (DPS, healing, etc.)
-- ✅ Settings and configuration
+### ✅ Fully Supported
+- Real-time DPS meter display
+- Live statistics dashboard  
+- DPS charts and analytics
+- Player and skill breakdowns
+- All overlay views (DPS, healing, etc.)
+- Live data updates (via polling)
+
+### ⚠️ Limited/Experimental
+- Settings and configuration (some features may not work)
+- Encounter reset and control functions (may require desktop app)
+
+**Note**: The desktop app provides the backend functionality. All data processing, packet capture, and computation happens in the desktop app. The web interface is primarily for viewing/monitoring purposes.
+
+### Future Improvements
+
+In future versions, we plan to add full HTTP API support to enable all features in web browser mode, including:
+- Full settings management from browser
+- Encounter control (reset, pause, etc.)
+- Advanced configuration options
 
 ## Sharing Your Stats
 

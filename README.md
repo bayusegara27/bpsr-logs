@@ -38,13 +38,13 @@ https://github.com/winjwinj/bpsr-logs/releases/latest
 
 # Web Browser Access
 
-You can access the DPS meter in a web browser (in addition to the desktop window) by using a tunnel service like cloudflared.
+You can access the BPSR Logs interface in a web browser using tunnel services like cloudflared. This allows you to view your DPS stats remotely from another device.
 
 **📖 [See detailed Web Access Guide](WEB_ACCESS.md)** for step-by-step instructions.
 
 ## Quick Start
 
-1. **Start the desktop app** - Run BPSR Logs as normal
+1. **Start the desktop app** - Run BPSR Logs as normal (required for packet capture)
 2. **Install cloudflared**: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/
 3. **Run tunnel**:
    ```bash
@@ -52,7 +52,26 @@ You can access the DPS meter in a web browser (in addition to the desktop window
    ```
 4. **Access via browser** - Use the provided URL (e.g., `https://xxx.trycloudflare.com`)
 
-**Note:** The desktop app must be running for the web interface to work (it provides packet capture and data processing).
+## Current Limitations
+
+⚠️ **Important**: The desktop app must remain running for the web interface to work. The desktop app handles:
+- Game packet capture (WinDivert)
+- Data processing and statistics calculation
+- Serving the web interface
+
+**Note**: Some interactive features (settings, encounter reset) may have limited functionality when accessed from an external browser in the current version. The primary use case is viewing/monitoring DPS stats remotely.
+
+## Use Cases
+
+✅ **Works great for:**
+- Viewing your DPS stats on a second monitor or device
+- Sharing your stats with party members in real-time
+- Monitoring combat performance from a mobile device
+- Displaying stats on stream using an OBS browser source
+
+⚠️ **Limited support for:**
+- Changing settings from the web interface
+- Some advanced features that require desktop app integration
 
 # Is it bannable?
 
