@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { commands, type PlayersWindow } from '$lib/bindings';
+	import { type PlayersWindow } from '$lib/bindings';
+	import { api } from '$lib/api';
 	import { getClassColor } from '$lib/utils.svelte';
 	import { goto } from '$app/navigation';
 	import { getCoreRowModel } from '@tanstack/table-core';
@@ -24,8 +25,8 @@
 
 	async function fetchData() {
 		healPlayersWindow = SETTINGS.misc.state.testingMode
-			? await commands.getTestPlayerWindow()
-			: await commands.getHealPlayerWindow();
+			? await api.getTestPlayerWindow()
+			: await api.getHealPlayerWindow();
 	}
 
 	const healTable = createSvelteTable({

@@ -1,7 +1,9 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { commands } from '$lib/bindings';
+	import { api } from '$lib/api';
 	import type { HeaderInfo, PlayersWindow } from '$lib/bindings';
+	import { api } from '$lib/api';
 
 	let headerInfo = $state<HeaderInfo | null>(null);
 	let dpsData = $state<PlayersWindow | null>(null);
@@ -10,13 +12,13 @@
 
 	async function updateStats() {
 		try {
-			const headerResult = await commands.getHeaderInfo();
+			const headerResult = await api.getHeaderInfo();
 			if (headerResult.status === 'ok') {
 				headerInfo = headerResult.data;
 			}
 			
-			dpsData = await commands.getDpsPlayerWindow();
-			healData = await commands.getHealPlayerWindow();
+			dpsData = await api.getDpsPlayerWindow();
+			healData = await api.getHealPlayerWindow();
 		} catch (error) {
 			console.error('Failed to fetch stats:', error);
 		}

@@ -1,4 +1,4 @@
-import { commands } from '$lib/bindings';
+import { api } from '$lib/api';
 import { SETTINGS } from '$lib/settings-store';
 import { setClickthrough, toggleClickthrough } from '$lib/utils.svelte';
 import { emitTo } from '@tauri-apps/api/event';
@@ -90,7 +90,7 @@ export async function registerShortcut(cmdId: string, shortcutKey: string) {
 			case 'resetEncounter':
 				await register(shortcutKey, async (event) => {
 					if (event.state === 'Pressed') {
-						await commands.resetEncounter();
+						await api.resetEncounter();
 					}
 				});
 				break;
@@ -98,7 +98,7 @@ export async function registerShortcut(cmdId: string, shortcutKey: string) {
 			case 'hardReset':
 				await register(shortcutKey, async (event) => {
 					if (event.state === 'Pressed') {
-						commands.hardReset();
+						api.hardReset();
 					}
 				});
 				break;

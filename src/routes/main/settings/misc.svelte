@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { commands } from '$lib/bindings';
+	import { api } from '$lib/api';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import { SETTINGS } from '$lib/settings-store';
 	import SettingsButton from './settings-button.svelte';
@@ -17,7 +17,7 @@
 		description="Enable UI Testing. Only works with DPS/Heal Player/Skills. Once you turn it off, make sure to reload the window."
 	/>
 	<SettingsButton
-		onclick={commands.copySyncContainerData}
+		onclick={api.copySyncContainerData}
 		buttonLabel="SyncContainerData"
 		label="Dump SyncContainerData"
 		description="Dump SyncContainerData to clipboard. This data includes MANY things about YOU including talent tree, gear, etc."
