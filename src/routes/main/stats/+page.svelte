@@ -3,10 +3,10 @@
 	import { commands } from '$lib/bindings';
 	import type { HeaderInfo, PlayersWindow } from '$lib/bindings';
 
-	let headerInfo: HeaderInfo | null = null;
-	let dpsData: PlayersWindow | null = null;
-	let healData: PlayersWindow | null = null;
-	let updateInterval: number;
+	let headerInfo = $state<HeaderInfo | null>(null);
+	let dpsData = $state<PlayersWindow | null>(null);
+	let healData = $state<PlayersWindow | null>(null);
+	let updateInterval: ReturnType<typeof setInterval> | undefined;
 
 	async function updateStats() {
 		try {

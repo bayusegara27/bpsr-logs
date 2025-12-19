@@ -3,10 +3,10 @@
 	import { commands } from '$lib/bindings';
 	import type { HeaderInfo, PlayersWindow } from '$lib/bindings';
 
-	let headerInfo: HeaderInfo | null = null;
-	let dpsData: PlayersWindow | null = null;
-	let dpsHistory: Array<{ timestamp: number; totalDps: number; totalDmg: number }> = [];
-	let updateInterval: number;
+	let headerInfo = $state<HeaderInfo | null>(null);
+	let dpsData = $state<PlayersWindow | null>(null);
+	let dpsHistory = $state<Array<{ timestamp: number; totalDps: number; totalDmg: number }>>([]);
+	let updateInterval: ReturnType<typeof setInterval> | undefined;
 	const MAX_HISTORY = 60; // Keep 60 data points
 
 	async function updateData() {
@@ -51,9 +51,9 @@
 		return num.toFixed(0);
 	}
 
-	$: maxDps = Math.max(...dpsHistory.map(d => d.totalDps), 1);
-	$: chartHeight = 200;
-	$: chartWidth = 800;
+	const maxDps = $derived(Math.max(...dpsHistory.map(d => d.totalDps), 1));
+	const chartHeight = $derived(200);
+	const chartWidth = $derived(800);
 	
 	function getChartPath(data: typeof dpsHistory): string {
 		if (data.length < 2) return '';
@@ -144,6 +144,7 @@
 				<h2 class="text-2xl font-bold mb-4">Player DPS Comparison</h2>
 				<div class="bars-container space-y-3">
 					{#each dpsData.playerRows.slice(0, 10) as player, index}
+						{@const topPlayerDps = dpsData.playerRows[0]?.valuePerSec || 1}
 						<div class="player-bar">
 							<div class="flex justify-between items-center mb-1">
 								<div class="flex items-center gap-2">
@@ -158,7 +159,7 @@
 							<div class="progress-bar w-full h-8 bg-gray-200 rounded-lg overflow-hidden relative">
 								<div 
 									class="h-full bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 transition-all duration-500 flex items-center justify-end pr-3"
-									style="width: {(player.valuePerSec / dpsData.playerRows[0].valuePerSec) * 100}%"
+									style="width: {(player.valuePerSec / topPlayerDps) * 100}%"
 								>
 									<span class="text-white text-xs font-semibold">
 										{formatNumber(player.totalValue)} total
