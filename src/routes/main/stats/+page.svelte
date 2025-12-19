@@ -99,25 +99,27 @@
 	}
 </script>
 
-<div class="stats-container p-6 space-y-6">
+<div class="stats-container p-6 space-y-6 animate-in fade-in duration-300">
 	<div class="header-section">
-		<h1 class="text-3xl font-bold mb-4">📊 Live Statistics & Dashboard</h1>
-		<p class="text-gray-600 mb-6">Real-time combat statistics and performance metrics</p>
+		<h1 class="text-3xl font-bold mb-2 bg-gradient-to-r from-primary to-chart-2 bg-clip-text text-transparent">📊 Live Statistics Dashboard</h1>
+		<p class="text-muted-foreground mb-6">Real-time combat statistics and performance metrics</p>
 		
-		<div class="action-buttons flex gap-4 mb-6">
+		<div class="action-buttons flex flex-wrap gap-3 mb-6">
 			<button 
 				onclick={exportData}
-				class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+				class="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all hover:scale-105 shadow-md"
 			>
-				💾 Export Data
+				<span>💾</span>
+				<span>Export Data</span>
 			</button>
 			<button 
 				onclick={shareToClipboard}
-				class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition relative"
+				class="flex items-center gap-2 px-4 py-2 bg-chart-2 text-white rounded-lg hover:bg-chart-2/90 transition-all hover:scale-105 shadow-md relative"
 			>
-				📋 Share to Clipboard
+				<span>📋</span>
+				<span>Share to Clipboard</span>
 				{#if copySuccess}
-					<span class="absolute -top-8 left-1/2 -translate-x-1/2 bg-green-800 text-white px-3 py-1 rounded text-sm whitespace-nowrap">
+					<span class="absolute -top-10 left-1/2 -translate-x-1/2 bg-chart-2 text-white px-3 py-2 rounded-lg text-sm whitespace-nowrap shadow-lg animate-in fade-in slide-in-from-bottom-2 duration-200">
 						✓ Copied!
 					</span>
 				{/if}
@@ -126,76 +128,84 @@
 	</div>
 
 	{#if headerInfo}
-		<div class="stats-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-			<div class="stat-card bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-lg shadow-lg">
-				<div class="stat-label text-sm opacity-90">Total DPS</div>
-				<div class="stat-value text-3xl font-bold">{formatNumber(headerInfo.totalDps)}</div>
-				<div class="stat-unit text-xs opacity-75">damage per second</div>
+		<div class="stats-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 animate-in slide-in-from-bottom-4 duration-500">
+			<div class="stat-card group bg-gradient-to-br from-chart-1 to-chart-2 text-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300">
+				<div class="stat-label text-sm opacity-90 font-medium">Total DPS</div>
+				<div class="stat-value text-4xl font-bold mt-2 group-hover:scale-110 transition-transform">{formatNumber(headerInfo.totalDps)}</div>
+				<div class="stat-unit text-xs opacity-75 mt-1">damage per second</div>
 			</div>
 			
-			<div class="stat-card bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 rounded-lg shadow-lg">
-				<div class="stat-label text-sm opacity-90">Total Damage</div>
-				<div class="stat-value text-3xl font-bold">{formatNumber(headerInfo.totalDmg)}</div>
-				<div class="stat-unit text-xs opacity-75">total damage dealt</div>
+			<div class="stat-card group bg-gradient-to-br from-chart-2 to-chart-3 text-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300">
+				<div class="stat-label text-sm opacity-90 font-medium">Total Damage</div>
+				<div class="stat-value text-4xl font-bold mt-2 group-hover:scale-110 transition-transform">{formatNumber(headerInfo.totalDmg)}</div>
+				<div class="stat-unit text-xs opacity-75 mt-1">total damage dealt</div>
 			</div>
 			
-			<div class="stat-card bg-gradient-to-br from-green-500 to-green-600 text-white p-6 rounded-lg shadow-lg">
-				<div class="stat-label text-sm opacity-90">Duration</div>
-				<div class="stat-value text-2xl font-bold">{formatTime(headerInfo.elapsedMs)}</div>
-				<div class="stat-unit text-xs opacity-75">combat time</div>
+			<div class="stat-card group bg-gradient-to-br from-chart-3 to-chart-4 text-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300">
+				<div class="stat-label text-sm opacity-90 font-medium">Duration</div>
+				<div class="stat-value text-3xl font-bold mt-2 group-hover:scale-110 transition-transform">{formatTime(headerInfo.elapsedMs)}</div>
+				<div class="stat-unit text-xs opacity-75 mt-1">combat time</div>
 			</div>
 			
-			<div class="stat-card bg-gradient-to-br from-orange-500 to-orange-600 text-white p-6 rounded-lg shadow-lg">
-				<div class="stat-label text-sm opacity-90">Active Players</div>
-				<div class="stat-value text-3xl font-bold">{dpsData?.playerRows.length || 0}</div>
-				<div class="stat-unit text-xs opacity-75">in combat</div>
+			<div class="stat-card group bg-gradient-to-br from-chart-4 to-chart-5 text-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300">
+				<div class="stat-label text-sm opacity-90 font-medium">Active Players</div>
+				<div class="stat-value text-4xl font-bold mt-2 group-hover:scale-110 transition-transform">{dpsData?.playerRows.length || 0}</div>
+				<div class="stat-unit text-xs opacity-75 mt-1">in combat</div>
 			</div>
 		</div>
 	{:else}
-		<div class="loading-state text-center py-12">
-			<div class="text-xl">⏳ Loading statistics...</div>
-			<p class="text-gray-600 mt-2">Waiting for combat data</p>
+		<div class="loading-state text-center py-16 bg-card rounded-xl border border-border animate-pulse">
+			<div class="text-2xl mb-2">⏳</div>
+			<div class="text-xl font-semibold">Loading statistics...</div>
+			<p class="text-muted-foreground mt-2">Waiting for combat data</p>
 		</div>
 	{/if}
 
 	{#if dpsData && dpsData.playerRows.length > 0}
-		<div class="dps-section bg-white rounded-lg shadow-lg p-6">
-			<h2 class="text-2xl font-bold mb-4">💥 DPS Rankings</h2>
-			<div class="table-responsive overflow-x-auto">
+		<div class="dps-section bg-card rounded-xl shadow-xl border border-border p-6 animate-in slide-in-from-bottom-6 duration-700">
+			<h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
+				<span class="text-3xl">💥</span>
+				<span>DPS Rankings</span>
+			</h2>
+			<div class="table-responsive overflow-x-auto rounded-lg">
 				<table class="w-full">
-					<thead class="bg-gray-100">
+					<thead class="bg-muted/50 border-b border-border">
 						<tr>
-							<th class="px-4 py-2 text-left">Rank</th>
-							<th class="px-4 py-2 text-left">Player</th>
-							<th class="px-4 py-2 text-left">Class</th>
-							<th class="px-4 py-2 text-right">Total Damage</th>
-							<th class="px-4 py-2 text-right">DPS</th>
-							<th class="px-4 py-2 text-right">Crit %</th>
-							<th class="px-4 py-2 text-right">Contribution</th>
+							<th class="px-4 py-3 text-left font-semibold">Rank</th>
+							<th class="px-4 py-3 text-left font-semibold">Player</th>
+							<th class="px-4 py-3 text-left font-semibold">Class</th>
+							<th class="px-4 py-3 text-right font-semibold">Total Damage</th>
+							<th class="px-4 py-3 text-right font-semibold">DPS</th>
+							<th class="px-4 py-3 text-right font-semibold">Crit %</th>
+							<th class="px-4 py-3 text-right font-semibold">Contribution</th>
 						</tr>
 					</thead>
 					<tbody>
-						{#each dpsData.playerRows as player, index}
-							<tr class="border-b hover:bg-gray-50 transition">
-								<td class="px-4 py-3 font-semibold">#{index + 1}</td>
+						{#each dpsData.playerRows as player, index (player.name + player.totalValue)}
+							<tr class="border-b border-border hover:bg-accent/50 transition-colors">
+								<td class="px-4 py-3">
+									<span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-chart-1 to-chart-2 text-white font-bold text-sm">
+										{index + 1}
+									</span>
+								</td>
 								<td class="px-4 py-3 font-medium">{player.name}</td>
 								<td class="px-4 py-3">
-									<span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm">
+									<span class="px-3 py-1 bg-chart-2/20 text-chart-2 rounded-full text-sm font-medium border border-chart-2/30">
 										{player.className}
 									</span>
 								</td>
-								<td class="px-4 py-3 text-right">{formatNumber(player.totalValue)}</td>
-								<td class="px-4 py-3 text-right font-semibold">{formatNumber(player.valuePerSec)}/s</td>
+								<td class="px-4 py-3 text-right font-semibold">{formatNumber(player.totalValue)}</td>
+								<td class="px-4 py-3 text-right font-bold text-chart-1">{formatNumber(player.valuePerSec)}/s</td>
 								<td class="px-4 py-3 text-right">{(player.critRate * 100).toFixed(1)}%</td>
 								<td class="px-4 py-3 text-right">
 									<div class="flex items-center justify-end gap-2">
-										<div class="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+										<div class="w-24 h-2.5 bg-muted rounded-full overflow-hidden">
 											<div 
-												class="h-full bg-gradient-to-r from-blue-500 to-purple-600"
+												class="h-full bg-gradient-to-r from-chart-1 via-chart-2 to-chart-3 transition-all duration-500"
 												style="width: {player.valuePct * 100}%"
 											></div>
 										</div>
-										<span class="text-sm">{(player.valuePct * 100).toFixed(1)}%</span>
+										<span class="text-sm font-medium min-w-[3rem]">{(player.valuePct * 100).toFixed(1)}%</span>
 									</div>
 								</td>
 							</tr>
@@ -207,41 +217,48 @@
 	{/if}
 
 	{#if healData && healData.playerRows.length > 0}
-		<div class="heal-section bg-white rounded-lg shadow-lg p-6">
-			<h2 class="text-2xl font-bold mb-4">💚 Healing Rankings</h2>
-			<div class="table-responsive overflow-x-auto">
+		<div class="heal-section bg-card rounded-xl shadow-xl border border-border p-6 animate-in slide-in-from-bottom-8 duration-900">
+			<h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
+				<span class="text-3xl">💚</span>
+				<span>Healing Rankings</span>
+			</h2>
+			<div class="table-responsive overflow-x-auto rounded-lg">
 				<table class="w-full">
-					<thead class="bg-gray-100">
+					<thead class="bg-muted/50 border-b border-border">
 						<tr>
-							<th class="px-4 py-2 text-left">Rank</th>
-							<th class="px-4 py-2 text-left">Player</th>
-							<th class="px-4 py-2 text-left">Class</th>
-							<th class="px-4 py-2 text-right">Total Healing</th>
-							<th class="px-4 py-2 text-right">HPS</th>
-							<th class="px-4 py-2 text-right">Contribution</th>
+							<th class="px-4 py-3 text-left font-semibold">Rank</th>
+							<th class="px-4 py-3 text-left font-semibold">Player</th>
+							<th class="px-4 py-3 text-left font-semibold">Class</th>
+							<th class="px-4 py-3 text-right font-semibold">Total Healing</th>
+							<th class="px-4 py-3 text-right font-semibold">HPS</th>
+							<th class="px-4 py-3 text-right font-semibold">Contribution</th>
 						</tr>
 					</thead>
 					<tbody>
-						{#each healData.playerRows as player, index}
-							<tr class="border-b hover:bg-gray-50 transition">
-								<td class="px-4 py-3 font-semibold">#{index + 1}</td>
+						{#each healData.playerRows as player, index (player.name + player.totalValue)}
+							<tr class="border-b border-border hover:bg-accent/50 transition-colors">
+								<td class="px-4 py-3">
+									<span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-chart-3 to-chart-4 text-white font-bold text-sm">
+										{index + 1}
+									</span>
+								</td>
 								<td class="px-4 py-3 font-medium">{player.name}</td>
 								<td class="px-4 py-3">
-									<span class="px-2 py-1 bg-green-100 text-green-800 rounded text-sm">
+									<span class="px-3 py-1 bg-chart-3/20 text-chart-3 rounded-full text-sm font-medium border border-chart-3/30">
 										{player.className}
 									</span>
 								</td>
-								<td class="px-4 py-3 text-right">{formatNumber(player.totalValue)}</td>
-								<td class="px-4 py-3 text-right font-semibold">{formatNumber(player.valuePerSec)}/s</td>
+								<td class="px-4 py-3 text-right font-semibold">{formatNumber(player.totalValue)}</td>
+								<td class="px-4 py-3 text-right font-bold text-chart-3">{formatNumber(player.valuePerSec)}/s</td>
 								<td class="px-4 py-3 text-right">
 									<div class="flex items-center justify-end gap-2">
-										<div class="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+										<div class="w-24 h-2.5 bg-muted rounded-full overflow-hidden">
 											<div 
-												class="h-full bg-gradient-to-r from-green-400 to-green-600"
+												class="h-full bg-gradient-to-r from-chart-3 to-chart-4 transition-all duration-500"
 												style="width: {player.valuePct * 100}%"
 											></div>
 										</div>
-										<span class="text-sm">{(player.valuePct * 100).toFixed(1)}%</span>
+										<span class="text-sm font-medium min-w-[3rem]">{(player.valuePct * 100).toFixed(1)}%</span>
 									</div>
 								</td>
 							</tr>
@@ -252,9 +269,12 @@
 		</div>
 	{/if}
 	
-	<div class="info-section bg-blue-50 border border-blue-200 rounded-lg p-4">
-		<h3 class="text-lg font-semibold mb-2">ℹ️ How to Share</h3>
-		<p class="text-gray-700">
+	<div class="info-section bg-accent/30 border border-accent rounded-xl p-5 backdrop-blur-sm">
+		<h3 class="text-lg font-semibold mb-2 flex items-center gap-2">
+			<span>ℹ️</span>
+			<span>How to Share</span>
+		</h3>
+		<p class="text-sm text-muted-foreground leading-relaxed">
 			Click "Share to Clipboard" to copy your statistics and share them with others. 
 			The data includes your DPS rankings, healing stats, and combat duration.
 			You can also export full data as JSON for detailed analysis.
@@ -269,10 +289,23 @@
 	}
 	
 	.stat-card {
-		transition: transform 0.2s;
+		transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 	}
 	
 	.stat-card:hover {
-		transform: translateY(-2px);
+		transform: translateY(-4px) scale(1.02);
+	}
+	
+	@keyframes pulse-subtle {
+		0%, 100% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0.8;
+		}
+	}
+	
+	.loading-state {
+		animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 	}
 </style>

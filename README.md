@@ -85,8 +85,8 @@ These scripts will:
 
 ## How It Works
 
-The app now runs two servers simultaneously:
-- **Port 1420**: Vite dev server for the web interface
+The app runs two servers simultaneously:
+- **Port 1420**: Web interface (Vite dev server in development, static file server in production)
 - **Port 3000**: HTTP API server for data access
 
 When accessed from a browser, the app automatically detects the environment and uses the HTTP API instead of Tauri's native invoke. You get the same experience whether using the desktop app or web browser!
@@ -96,7 +96,7 @@ When accessed from a browser, the app automatically detects the environment and 
 ⚠️ **Important**: The desktop app must remain running for the web interface to work. The desktop app handles:
 - Game packet capture (WinDivert)
 - Data processing and statistics calculation
-- Serving the HTTP API
+- Serving the HTTP API and web interface
 
 Some desktop-specific features (like window blur effects) are gracefully disabled in browser mode.
 

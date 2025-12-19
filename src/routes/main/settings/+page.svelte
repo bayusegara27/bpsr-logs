@@ -6,12 +6,14 @@
 	import Live from './live.svelte';
 	import Misc from './misc.svelte';
 	import Shortcuts from './shortcuts.svelte';
+	import Web from './web.svelte';
 
 	const settingsTabs = [
 		{ id: 'general', label: 'General' },
 		{ id: 'accessibility', label: 'Accessibility' },
 		{ id: 'shortcuts', label: 'Shortcuts' },
 		{ id: 'live', label: 'Live' },
+		{ id: 'web', label: 'Web' },
 		{ id: 'misc', label: 'Misc' },
 		{ id: 'integration', label: 'Integration' }
 	];
@@ -27,6 +29,7 @@
 	<Accessibility />
 	<Shortcuts />
 	<Live />
+	<Web />
 	<Misc />
 	<Integration />
 </Tabs.Root>

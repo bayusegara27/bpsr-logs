@@ -115,7 +115,7 @@ When accessing through a web browser, you'll have access to:
 ### Technical Details
 
 The app runs two servers:
-- **Port 1420**: Frontend (Vite dev server)
+- **Port 1420**: Frontend (Vite dev server in development, static file server in production)
 - **Port 3000**: HTTP API (Axum/Rust backend)
 
 When you access the app through a tunnel, it uses the HTTP API for all data operations. The experience is seamless - you get the same functionality as the desktop app!
@@ -163,6 +163,10 @@ TAURI_DEV_HOST=0.0.0.0 npm run tauri dev
 ### Development Mode
 
 When running `npm run tauri dev`, the Vite dev server automatically binds to `0.0.0.0:1420`, making it accessible for tunneling.
+
+### Production Mode
+
+When running the built application, a static file server automatically starts on `0.0.0.0:1420` to serve the bundled frontend files, enabling tunnel access in production builds.
 
 ## Security Notes
 
