@@ -44,6 +44,28 @@ You can access the BPSR Logs interface in a web browser using tunnel services li
 
 ## Quick Start
 
+### Using the Helper Script (Easiest)
+
+We provide convenient scripts to set up the tunnel for you:
+
+**Windows:**
+```cmd
+start-tunnel.bat
+```
+
+**Linux/Mac:**
+```bash
+./start-tunnel.sh
+```
+
+These scripts will:
+- Check if cloudflared is installed
+- Verify BPSR Logs is running
+- Start the tunnel automatically
+- Display the access URL
+
+### Manual Setup
+
 1. **Start the desktop app** - Run BPSR Logs as normal (required for packet capture)
 2. **Install cloudflared**: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/
 3. **Run tunnel**:
