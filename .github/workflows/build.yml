@@ -1,14 +1,19 @@
-name: 'publish'
+name: 'publish (DEPRECATED - Use release.yml)'
+
+# ⚠️ DEPRECATED: This workflow is deprecated. 
+# Please use .github/workflows/release.yml for automated releases.
+# This file is kept for reference only.
 
 on:
   push:
     branches:
-      - release
+      - release-legacy
     tags:
-      - 'v*'
+      - 'legacy-v*'
   workflow_dispatch:
 
-# This workflow will trigger on pushes to the `release` branch, when tags starting with 'v' are created, or manually via workflow_dispatch to create or update a GitHub release, build your app, and upload the artifacts to the release.
+# This workflow will trigger on pushes to the `release-legacy` branch, when tags starting with 'legacy-v' are created, or manually via workflow_dispatch to create or update a GitHub release, build your app, and upload the artifacts to the release.
+# NOTE: The new automated release workflow is at .github/workflows/release.yml
 
 jobs:
   publish-tauri:

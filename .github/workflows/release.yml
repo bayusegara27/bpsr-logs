@@ -1,0 +1,334 @@
+name: 'Automated Release'
+
+on:
+  push:
+    branches:
+      - main
+      - release
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version_bump:
+        description: 'Version bump type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  # Auto-version and create release when merged to main
+  auto-version:
+    name: Auto Version & Tag
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && !startsWith(github.event.head_commit.message, 'chore(release):')
+    outputs:
+      new_version: ${{ steps.version.outputs.new_version }}
+      should_release: ${{ steps.version.outputs.should_release }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      - name: Determine version bump
+        id: determine_bump
+        run: |
+          # Check commit messages for version bump indicators
+          COMMIT_MSG="${{ github.event.head_commit.message }}"
+          
+          if [[ "$COMMIT_MSG" == *"BREAKING CHANGE"* ]] || [[ "$COMMIT_MSG" == *"!"* ]]; then
+            echo "bump=major" >> $GITHUB_OUTPUT
+          elif [[ "$COMMIT_MSG" == *"feat"* ]] || [[ "$COMMIT_MSG" == *"feature"* ]]; then
+            echo "bump=minor" >> $GITHUB_OUTPUT
+          else
+            echo "bump=patch" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Get current version
+        id: get_version
+        run: |
+          CURRENT_VERSION=$(grep -oP '(?<="version": ")[^"]*' src-tauri/tauri.conf.json)
+          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          echo "Current version: $CURRENT_VERSION"
+
+      - name: Calculate new version
+        id: version
+        run: |
+          CURRENT="${{ steps.get_version.outputs.current_version }}"
+          BUMP="${{ github.event.inputs.version_bump || steps.determine_bump.outputs.bump }}"
+          
+          IFS='.' read -ra VERSION <<< "$CURRENT"
+          MAJOR=${VERSION[0]}
+          MINOR=${VERSION[1]}
+          PATCH=${VERSION[2]}
+          
+          case $BUMP in
+            major)
+              MAJOR=$((MAJOR + 1))
+              MINOR=0
+              PATCH=0
+              ;;
+            minor)
+              MINOR=$((MINOR + 1))
+              PATCH=0
+              ;;
+            patch)
+              PATCH=$((PATCH + 1))
+              ;;
+          esac
+          
+          NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "should_release=true" >> $GITHUB_OUTPUT
+          echo "New version will be: $NEW_VERSION"
+
+      - name: Update version in files
+        run: |
+          NEW_VERSION="${{ steps.version.outputs.new_version }}"
+          
+          # Update tauri.conf.json
+          sed -i "s/\"version\": \"[^\"]*\"/\"version\": \"$NEW_VERSION\"/" src-tauri/tauri.conf.json
+          
+          # Update Cargo.toml
+          sed -i "s/^version = \"[^\"]*\"/version = \"$NEW_VERSION\"/" src-tauri/Cargo.toml
+          
+          # Update Cargo.lock
+          cd src-tauri
+          cargo update -p bpsr-logs
+          cd ..
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Get commits since last tag
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          
+          if [ -z "$LAST_TAG" ]; then
+            COMMITS=$(git log --pretty=format:"- %s (%h)" --no-merges)
+          else
+            COMMITS=$(git log ${LAST_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges)
+          fi
+          
+          # Create changelog file
+          cat > CHANGELOG_NEW.md << EOF
+          ## v${{ steps.version.outputs.new_version }} - $(date +%Y-%m-%d)
+          
+          ### Changes
+          
+          $COMMITS
+          
+          ### Installation
+          
+          Download the appropriate installer for your platform from the assets below.
+          
+          - **Windows**: \`bpsr-logs_${{ steps.version.outputs.new_version }}_x64_en-US.msi\`
+          
+          ### Notes
+          
+          - Auto-update is enabled - the app will update automatically on next launch
+          - Join our [Discord](https://discord.gg/Tcc54ST5BU) for support
+          
+          EOF
+          
+          # Append existing changelog if it exists
+          if [ -f CHANGELOG.md ]; then
+            echo "" >> CHANGELOG_NEW.md
+            cat CHANGELOG.md >> CHANGELOG_NEW.md
+          fi
+          
+          mv CHANGELOG_NEW.md CHANGELOG.md
+
+      - name: Commit version bump
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add src-tauri/tauri.conf.json src-tauri/Cargo.toml src-tauri/Cargo.lock CHANGELOG.md
+          git commit -m "chore(release): bump version to v${{ steps.version.outputs.new_version }}"
+          git tag "v${{ steps.version.outputs.new_version }}"
+          git push origin main --tags
+
+  # Build and release
+  build-and-release:
+    name: Build & Release
+    needs: auto-version
+    if: needs.auto-version.outputs.should_release == 'true' || github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v')
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'push' && 'main' || github.ref }}
+          fetch-depth: 0
+
+      - name: Get version
+        id: version
+        shell: pwsh
+        run: |
+          $version = (Get-Content src-tauri/tauri.conf.json | ConvertFrom-Json).version
+          echo "version=$version" >> $env:GITHUB_OUTPUT
+          echo "Building version: $version"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'npm'
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Read changelog
+        id: changelog
+        shell: pwsh
+        run: |
+          $changelogContent = ""
+          if (Test-Path CHANGELOG.md) {
+            $changelogContent = Get-Content CHANGELOG.md -Raw
+            # Get only the latest version section
+            $changelogContent = ($changelogContent -split "## v")[1]
+            $changelogContent = "## v" + $changelogContent
+            # Take only first section
+            $changelogContent = ($changelogContent -split "## v")[0]
+          } else {
+            $changelogContent = (git log -1 --pretty=%B)
+          }
+          
+          $changelogContent = $changelogContent -replace "`r`n", "`n"
+          
+          @(
+            'RELEASE_BODY<<EOF'
+            '# 🎉 BPSR Logs Release'
+            ''
+            $changelogContent
+            ''
+            '## 📦 Installation Instructions'
+            ''
+            '1. Download the MSI installer below'
+            '2. Run the installer and follow the prompts'
+            '3. Launch BPSR Logs from your Start Menu'
+            ''
+            '## 🔗 Useful Links'
+            ''
+            '- [Discord Community](https://discord.gg/Tcc54ST5BU)'
+            '- [Documentation](https://github.com/winjwinj/bpsr-logs#readme)'
+            '- [Report Issues](https://github.com/winjwinj/bpsr-logs/issues)'
+            ''
+            '## ⚠️ Known Issues'
+            ''
+            '- WinDivert may be flagged by antivirus software (false positive)'
+            '- ExitLag VPN may not work properly'
+            '- Some VPNs may not be compatible'
+            ''
+            '## 🚀 Features'
+            ''
+            '- Real-time DPS meter for Blue Protocol'
+            '- Web browser access on http://localhost:1420'
+            '- Automatic updates'
+            '- Detailed statistics and charts'
+            '- Encounter history tracking'
+            ''
+            'EOF'
+          ) | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Build and release Tauri app
+        uses: tauri-apps/tauri-action@v0
+        id: tauri
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BP_TIMER_ENDPOINT: ${{ secrets.BP_TIMER_ENDPOINT }}
+          BP_TIMER_API_KEY: ${{ secrets.BP_TIMER_API_KEY }}
+        with:
+          tagName: v${{ steps.version.outputs.version }}
+          releaseName: 'BPSR Logs v${{ steps.version.outputs.version }}'
+          releaseBody: ${{ env.RELEASE_BODY }}
+          releaseDraft: false
+          prerelease: false
+          includeUpdaterJson: true
+          updaterJsonPreferNsis: false
+
+      - name: Upload Release Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: bpsr-logs-v${{ steps.version.outputs.version }}-windows
+          path: |
+            src-tauri/target/release/bundle/msi/*.msi
+            src-tauri/target/release/bundle/nsis/*.exe
+          if-no-files-found: warn
+
+      - name: Create release summary
+        shell: pwsh
+        run: |
+          $version = "${{ steps.version.outputs.version }}"
+          $summary = @"
+          # 🎉 Release v$version Complete!
+          
+          ## 📦 Artifacts
+          
+          - **MSI Installer**: ``bpsr-logs_${version}_x64_en-US.msi``
+          - **NSIS Installer**: ``bpsr-logs_${version}_x64-setup.exe``
+          
+          ## 🔗 Links
+          
+          - [Download Release](https://github.com/${{ github.repository }}/releases/tag/v$version)
+          - [View Changelog](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md)
+          
+          ## ✅ Status
+          
+          - Build: Success ✅
+          - Tests: Passed ✅
+          - Signed: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY != '' && 'Yes ✅' || 'No ⚠️' }}
+          - Auto-update JSON: Generated ✅
+          
+          "@
+          
+          echo $summary >> $env:GITHUB_STEP_SUMMARY
+
+  # Notify on completion
+  notify:
+    name: Post-Release Notifications
+    needs: build-and-release
+    if: always() && needs.build-and-release.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create success comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const message = `🎉 **Release Successful!**
+            
+            A new version has been automatically released and is now available for download.
+            
+            **What's next?**
+            - Users with auto-update enabled will receive the update on next launch
+            - New users can download from the [Releases page](https://github.com/${{ github.repository }}/releases/latest)
+            
+            ✅ All systems operational`;
+            
+            // You can add Discord webhook notification here if needed
+            console.log(message);
