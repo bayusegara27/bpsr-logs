@@ -9,6 +9,11 @@
 	let refreshInterval = $state(1000);
 	let compactMode = $state(false);
 	let showAnimations = $state(true);
+	
+	// Port configuration (informational - actual ports are set in Rust)
+	let preferredStaticPort = $state(1420);
+	let preferredApiPort = $state(3000);
+	let showPortInfo = $state(false);
 
 	onMount(() => {
 		// Detect if running in web browser
@@ -23,6 +28,8 @@
 				refreshInterval = settings.refreshInterval ?? 1000;
 				compactMode = settings.compactMode ?? false;
 				showAnimations = settings.showAnimations ?? true;
+				preferredStaticPort = settings.preferredStaticPort ?? 1420;
+				preferredApiPort = settings.preferredApiPort ?? 3000;
 			} catch (e) {
 				console.error('Failed to load web settings:', e);
 			}
@@ -34,7 +41,9 @@
 			autoRefresh,
 			refreshInterval,
 			compactMode,
-			showAnimations
+			showAnimations,
+			preferredStaticPort,
+			preferredApiPort
 		};
 		localStorage.setItem('bpsr-web-settings', JSON.stringify(settings));
 	}
@@ -57,6 +66,16 @@
 			document.body.classList.remove('no-animations');
 		}
 	});
+
+	function handleStaticPortChange(event: Event) {
+		const target = event.target as HTMLInputElement;
+		preferredStaticPort = parseInt(target.value);
+	}
+
+	function handleApiPortChange(event: Event) {
+		const target = event.target as HTMLInputElement;
+		preferredApiPort = parseInt(target.value);
+	}
 
 	function handleIntervalChange(event: Event) {
 		const target = event.target as HTMLInputElement;
@@ -125,6 +144,94 @@
 					description="Enable smooth transitions and animations"
 					bind:checked={showAnimations}
 				/>
+			</div>
+
+			<div class="divider my-6 border-t border-border"></div>
+
+			<div class="port-configuration-section">
+				<h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+					<span>🔌</span>
+					<span>Port Configuration</span>
+				</h3>
+				<p class="text-xs text-muted-foreground mb-4">
+					Configure preferred ports for web access. Note: These are reference values. 
+					The actual ports used are logged when the app starts and may differ if preferred ports are in use.
+				</p>
+
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<div class="port-setting p-4 bg-muted/30 rounded-lg">
+						<label for="static-port" class="block mb-2">
+							<span class="text-sm font-medium">Static File Server Port (Frontend)</span>
+							<span class="text-xs text-muted-foreground ml-2">Default: 1420</span>
+						</label>
+						<input
+							id="static-port"
+							type="number"
+							min="1024"
+							max="65535"
+							value={preferredStaticPort}
+							oninput={handleStaticPortChange}
+							class="w-full px-3 py-2 bg-background border border-border rounded-md text-sm"
+						/>
+						<p class="text-xs text-muted-foreground mt-1">
+							Fallback range: 1420-1430
+						</p>
+					</div>
+
+					<div class="port-setting p-4 bg-muted/30 rounded-lg">
+						<label for="api-port" class="block mb-2">
+							<span class="text-sm font-medium">HTTP API Server Port</span>
+							<span class="text-xs text-muted-foreground ml-2">Default: 3000</span>
+						</label>
+						<input
+							id="api-port"
+							type="number"
+							min="1024"
+							max="65535"
+							value={preferredApiPort}
+							oninput={handleApiPortChange}
+							class="w-full px-3 py-2 bg-background border border-border rounded-md text-sm"
+						/>
+						<p class="text-xs text-muted-foreground mt-1">
+							Fallback range: 3000-3010
+						</p>
+					</div>
+				</div>
+
+				<button
+					onclick={() => showPortInfo = !showPortInfo}
+					class="mt-3 text-sm text-primary hover:underline flex items-center gap-1"
+				>
+					<span>{showPortInfo ? '▼' : '▶'}</span>
+					<span>Show Connection Info & Logs</span>
+				</button>
+
+				{#if showPortInfo}
+					<div class="connection-info mt-4 p-4 bg-accent/20 border border-accent/50 rounded-lg animate-in slide-in-from-top-2 duration-200">
+						<h4 class="text-sm font-semibold mb-2">📡 Connection Information</h4>
+						<div class="space-y-2 text-xs">
+							<div class="info-item">
+								<span class="font-medium text-chart-1">Frontend URL:</span>
+								<code class="ml-2 px-2 py-1 bg-muted rounded">http://localhost:{preferredStaticPort}</code>
+								<p class="text-muted-foreground mt-1 ml-4">Access the web interface here</p>
+							</div>
+							<div class="info-item">
+								<span class="font-medium text-chart-2">API Endpoint:</span>
+								<code class="ml-2 px-2 py-1 bg-muted rounded">http://localhost:{preferredApiPort}/api</code>
+								<p class="text-muted-foreground mt-1 ml-4">Backend API for data access</p>
+							</div>
+							<div class="divider my-3 border-t border-border/50"></div>
+							<div class="info-item">
+								<span class="font-medium">📝 Log Location:</span>
+								<p class="text-muted-foreground mt-1">Check application logs to see actual ports used:</p>
+								<ul class="list-disc list-inside ml-4 mt-2 space-y-1 text-muted-foreground">
+									<li><code class="text-xs bg-muted px-1 rounded">Static file server starting on http://0.0.0.0:XXXX</code></li>
+									<li><code class="text-xs bg-muted px-1 rounded">HTTP API server starting on http://0.0.0.0:XXXX</code></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				{/if}
 			</div>
 
 			<div class="divider my-6 border-t border-border"></div>

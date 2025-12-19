@@ -71,27 +71,36 @@ pub async fn start_http_server(
     let app = Router::new().nest("/api", api_routes).layer(cors);
 
     // Try ports 3000-3010 to find an available one
+    info!("🚀 Attempting to start HTTP API server...");
     let mut port = 3000;
     let listener = loop {
         let addr = SocketAddr::from(([0, 0, 0, 0], port));
+        info!("📡 Attempting to bind HTTP API server to port {}...", port);
         match tokio::net::TcpListener::bind(addr).await {
             Ok(listener) => {
-                info!("HTTP API server starting on http://{}", addr);
-                info!("Web browser can access the API at http://localhost:{}/api", port);
+                info!("✅ HTTP API server successfully started on http://{}", addr);
+                info!("🌐 Web browser can access the API at http://localhost:{}/api", port);
+                info!("📊 Available endpoints:");
+                info!("   - GET /api/header-info");
+                info!("   - GET /api/dps-player-window");
+                info!("   - GET /api/heal-player-window");
+                info!("   - POST /api/reset-encounter");
                 break listener;
             }
             Err(e) => {
                 if port < 3010 {
-                    warn!("Port {} is in use, trying next port: {}", port, e);
+                    warn!("⚠️  Port {} is already in use ({}), trying port {}...", port, e, port + 1);
                     port += 1;
                 } else {
-                    warn!("Could not bind HTTP API server to any port 3000-3010: {}", e);
+                    warn!("❌ Could not bind HTTP API server to any port 3000-3010: {}", e);
+                    warn!("💡 Please close any applications using these ports and restart");
                     return Err(format!("Failed to bind HTTP API server: {}", e).into());
                 }
             }
         }
     };
 
+    info!("🎯 HTTP API server is ready and listening for requests");
     axum::serve(listener, app).await?;
 
     Ok(())

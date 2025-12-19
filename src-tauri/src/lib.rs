@@ -111,13 +111,16 @@ pub fn run() {
             app.manage(PlayerStateMutex::default()); // setup player state
             app.manage(PlayerCacheMutex::default()); // setup player cache
             
+            info!("🌐 Initializing web servers for browser access...");
+            
             // Clone state for HTTP server
             let encounter_http = app.state::<EncounterMutex>().inner().clone();
             let player_state_http = app.state::<PlayerStateMutex>().inner().clone();
             let player_cache_http = app.state::<PlayerCacheMutex>().inner().clone();
             let bptimer_enabled_http = app.state::<crate::live::bptimer_state::BPTimerEnabledMutex>().inner().clone();
             
-            // Start HTTP API server for web browser access (port 3000)
+            // Start HTTP API server for web browser access (port 3000-3010)
+            info!("📡 Starting HTTP API server...");
             tauri::async_runtime::spawn(async move {
                 if let Err(e) = http_server::start_http_server(
                     encounter_http,
@@ -127,12 +130,13 @@ pub fn run() {
                 )
                 .await
                 {
-                    warn!("HTTP API server error: {}", e);
+                    warn!("❌ HTTP API server failed to start: {}", e);
                 }
             });
             
-            // Start static file server for web browser access (port 1420)
+            // Start static file server for web browser access (port 1420-1430)
             // This serves the built frontend files, allowing tunnel access in production
+            info!("📂 Starting static file server...");
             let app_handle_static = app_handle.clone();
             tauri::async_runtime::spawn(async move {
                 // Try to find the frontend build directory
@@ -161,16 +165,18 @@ pub fn run() {
                 }
                 
                 if let Some(frontend_dir) = frontend_path {
-                    info!("Starting static file server with frontend at: {}", frontend_dir.display());
+                    info!("✅ Frontend build directory found at: {}", frontend_dir.display());
                     if let Err(e) = static_server::start_static_server(frontend_dir).await {
-                        warn!("Static file server error: {}", e);
+                        warn!("❌ Static file server failed to start: {}", e);
                     }
                 } else {
-                    info!("Static file server not started - frontend build directory not found");
-                    info!("This is normal in development mode (Vite dev server runs on port 1420 instead)");
+                    info!("ℹ️  Static file server not started - frontend build directory not found");
+                    info!("📝 This is normal in development mode (Vite dev server runs on port 1420 instead)");
+                    info!("💡 For production: ensure 'build' directory is bundled in app resources");
                 }
             });
             
+            info!("🎮 Starting packet capture for game monitoring...");
             // Start packet capture
             tauri::async_runtime::spawn(
                 async move { live::live_main::start(app_handle.clone()).await },
