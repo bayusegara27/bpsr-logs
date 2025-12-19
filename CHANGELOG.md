@@ -1,3 +1,28 @@
+## v0.22.4 - 2025-12-19
+
+### Changes
+
+- Address additional code review feedback: clarify comments and fix documentation (73758c9)
+- Update TROUBLESHOOTING_WEB_ACCESS.md (d7e6896)
+- Address code review feedback: extract constants and improve formatting (3e73591)
+- Add comprehensive changes summary documentation (59f1fdd)
+- Increase initialization delays to prevent race conditions (867534f)
+- Add comprehensive web access troubleshooting guide (ca86bea)
+- Add detailed logging and error handling for web servers (e429b7c)
+- Initial plan (2f1f405)
+
+### Installation
+
+Download the appropriate installer for your platform from the assets below.
+
+- **Windows**: `bpsr-logs_0.22.4_x64_en-US.msi`
+
+### Notes
+
+- Auto-update is enabled - the app will update automatically on next launch
+- Join our [Discord](https://discord.gg/Tcc54ST5BU) for support
+
+
 ## v0.22.3 - 2025-12-19
 
 ### Changes
