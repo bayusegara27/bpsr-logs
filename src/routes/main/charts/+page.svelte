@@ -51,7 +51,7 @@
 		return num.toFixed(0);
 	}
 
-	const maxDps = $derived(Math.max(...dpsHistory.map(d => d.totalDps), 1));
+	const maxDps = $derived(dpsHistory.reduce((max, d) => Math.max(max, d.totalDps), 1));
 	const chartHeight = $derived(200);
 	const chartWidth = $derived(800);
 	
@@ -67,9 +67,14 @@
 		return `M ${points.join(' L ')}`;
 	}
 
-	function clearData() {
-		dpsHistory = [];
-		commands.resetEncounter();
+	async function clearData() {
+		try {
+			dpsHistory = [];
+			await commands.resetEncounter();
+		} catch (error) {
+			console.error('Failed to reset encounter:', error);
+			// Even if reset fails, we've cleared the UI data
+		}
 	}
 </script>
 

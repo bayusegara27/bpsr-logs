@@ -75,6 +75,8 @@
 		URL.revokeObjectURL(url);
 	}
 
+	let copySuccess = $state(false);
+
 	function shareToClipboard() {
 		if (!headerInfo || !dpsData) return;
 		
@@ -89,7 +91,10 @@
 		});
 		
 		navigator.clipboard.writeText(shareText).then(() => {
-			alert('Statistics copied to clipboard!');
+			copySuccess = true;
+			setTimeout(() => { copySuccess = false; }, 2000);
+		}).catch((err) => {
+			console.error('Failed to copy:', err);
 		});
 	}
 </script>
@@ -108,9 +113,14 @@
 			</button>
 			<button 
 				onclick={shareToClipboard}
-				class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+				class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition relative"
 			>
 				📋 Share to Clipboard
+				{#if copySuccess}
+					<span class="absolute -top-8 left-1/2 -translate-x-1/2 bg-green-800 text-white px-3 py-1 rounded text-sm whitespace-nowrap">
+						✓ Copied!
+					</span>
+				{/if}
 			</button>
 		</div>
 	</div>
