@@ -1,3 +1,22 @@
+## v0.22.3 - 2025-12-19
+
+### Changes
+
+- fix: Add package-lock.json and remove it from .gitignore to fix Build & Release workflow (3a75d43)
+- Initial plan (bef8c35)
+
+### Installation
+
+Download the appropriate installer for your platform from the assets below.
+
+- **Windows**: `bpsr-logs_0.22.3_x64_en-US.msi`
+
+### Notes
+
+- Auto-update is enabled - the app will update automatically on next launch
+- Join our [Discord](https://discord.gg/Tcc54ST5BU) for support
+
+
 ## v0.22.2 - 2025-12-19
 
 ### Changes
