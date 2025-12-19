@@ -124,8 +124,10 @@ pub fn run() {
             info!("📡 Starting HTTP API server...");
             tauri::async_runtime::spawn(async move {
                 info!("🔄 HTTP API server task started");
-                // Add a small delay to ensure proper initialization order
-                tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
+                // Add a delay to ensure the tokio runtime is fully initialized
+                // This helps prevent potential race conditions during startup
+                tokio::time::sleep(tokio::time::Duration::from_millis(500)).await;
+                info!("🔄 HTTP API server task ready to initialize...");
                 
                 match http_server::start_http_server(
                     encounter_http,
@@ -140,6 +142,7 @@ pub fn run() {
                         warn!("❌ HTTP API server failed to start: {}", e);
                         warn!("💡 This means web browser access via port 3000 will not work");
                         warn!("💡 Please ensure no other applications are using ports 3000-3010");
+                        warn!("💡 Check firewall settings if the issue persists");
                     }
                 }
             });
@@ -151,8 +154,10 @@ pub fn run() {
             let app_handle_static = app_handle.clone();
             tauri::async_runtime::spawn(async move {
                 info!("🔄 Static file server task started");
-                // Add a small delay to ensure proper initialization order
-                tokio::time::sleep(tokio::time::Duration::from_millis(200)).await;
+                // Add a delay to ensure proper initialization order
+                // Start after HTTP API server to avoid conflicts
+                tokio::time::sleep(tokio::time::Duration::from_millis(1000)).await;
+                info!("🔄 Static file server task ready to initialize...");
                 
                 // Try to find the frontend build directory
                 // In production builds, we need to bundle and serve the static files
@@ -189,6 +194,7 @@ pub fn run() {
                             warn!("❌ Static file server failed to start: {}", e);
                             warn!("💡 This means web browser access via port 1420 will not work");
                             warn!("💡 Please ensure no other applications are using ports 1420-1430");
+                            warn!("💡 Check firewall settings if the issue persists");
                         }
                     }
                 } else {
