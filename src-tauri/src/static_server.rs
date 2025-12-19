@@ -31,6 +31,7 @@ pub async fn start_static_server(
     }
 
     info!("📁 Found frontend directory: {}", frontend_dir.display());
+    info!("🔧 Configuring CORS for static file server...");
 
     let cors = CorsLayer::new()
         .allow_origin(Any)
@@ -39,6 +40,15 @@ pub async fn start_static_server(
 
     // Path to index.html for SPA fallback
     let index_path = frontend_dir.join("index.html");
+    
+    if !index_path.exists() {
+        let err_msg = format!("index.html not found at: {}", index_path.display());
+        warn!("❌ {}", err_msg);
+        return Err(err_msg.into());
+    }
+    
+    info!("📄 Found index.html at: {}", index_path.display());
+    info!("🔧 Setting up file serving with SPA fallback...");
 
     // Create a service that serves files from the frontend directory
     // with index.html as fallback for SPA routing
@@ -46,6 +56,7 @@ pub async fn start_static_server(
         .append_index_html_on_directories(true)
         .not_found_service(ServeFile::new(&index_path));
 
+    info!("🔧 Creating router for static files...");
     let app = Router::new()
         .nest_service("/", serve_dir)
         .layer(cors);
@@ -55,11 +66,12 @@ pub async fn start_static_server(
     let mut port = 1420;
     let listener = loop {
         let addr = SocketAddr::from(([0, 0, 0, 0], port));
-        info!("📡 Attempting to bind static file server to port {}...", port);
+        info!("📡 Attempting to bind static file server to {}...", addr);
         match tokio::net::TcpListener::bind(addr).await {
             Ok(listener) => {
                 info!("✅ Static file server successfully started on http://{}", addr);
                 info!("🌐 Web browser can access the app at http://localhost:{}", port);
+                info!("🌐 Open in browser: http://localhost:{}", port);
                 info!("📂 Serving frontend from: {}", frontend_dir.display());
                 info!("🔧 SPA fallback enabled (all routes → index.html)");
                 info!("🌍 CORS enabled for tunnel access (cloudflared, ngrok, etc.)");
@@ -70,16 +82,26 @@ pub async fn start_static_server(
                     warn!("⚠️  Port {} is already in use ({}), trying port {}...", port, e, port + 1);
                     port += 1;
                 } else {
-                    warn!("❌ Could not bind static file server to any port 1420-1430: {}", e);
+                    let err_msg = format!("Could not bind static file server to any port 1420-1430: {}", e);
+                    warn!("❌ {}", err_msg);
                     warn!("💡 Please close any applications using these ports and restart");
-                    return Err(format!("Failed to bind static file server: {}", e).into());
+                    return Err(err_msg.into());
                 }
             }
         }
     };
 
     info!("🎯 Static file server is ready and serving files");
-    axum::serve(listener, app).await?;
-
-    Ok(())
+    info!("🔄 Starting axum server for static files...");
+    
+    match axum::serve(listener, app).await {
+        Ok(_) => {
+            info!("✅ Static file server shut down gracefully");
+            Ok(())
+        }
+        Err(e) => {
+            warn!("❌ Static file server error: {}", e);
+            Err(Box::new(e))
+        }
+    }
 }

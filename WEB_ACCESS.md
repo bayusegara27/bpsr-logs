@@ -136,6 +136,9 @@ You can share your tunnel URL with others to let them view your DPS stats in rea
 - Make sure the BPSR Logs desktop app is running
 - Verify the tunnel is active (check the terminal where you ran the tunnel command)
 - Try accessing http://localhost:1420 directly on the same computer first
+- Check if ports 1420 or 3000 are being used by other applications
+
+**📖 For detailed troubleshooting steps, see [TROUBLESHOOTING_WEB_ACCESS.md](TROUBLESHOOTING_WEB_ACCESS.md)**
 
 ### "Page not loading" or "ERR_CONNECTION_TIMED_OUT"
 
@@ -148,6 +151,8 @@ You can share your tunnel URL with others to let them view your DPS stats in rea
 - The desktop app must be running and capturing game packets
 - Make sure you're in game and generating combat activity
 - Check that the packet capture is working in the desktop app first
+
+**📖 For more troubleshooting help, see [TROUBLESHOOTING_WEB_ACCESS.md](TROUBLESHOOTING_WEB_ACCESS.md)**
 
 ## For Developers
 

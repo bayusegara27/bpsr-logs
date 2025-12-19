@@ -26,6 +26,11 @@ use tauri_specta::{Builder, collect_commands};
 pub const WINDOW_LIVE_LABEL: &str = "live";
 pub const WINDOW_MAIN_LABEL: &str = "main";
 
+// Server initialization delays to prevent race conditions
+// These delays ensure proper async runtime initialization and avoid port binding conflicts
+const HTTP_API_SERVER_INIT_DELAY_MS: u64 = 500;
+const STATIC_FILE_SERVER_INIT_DELAY_MS: u64 = 1000;
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     // Ignored in production GH action
@@ -120,9 +125,16 @@ pub fn run() {
             let bptimer_enabled_http = app.state::<crate::live::bptimer_state::BPTimerEnabledMutex>().inner().clone();
             
             // Start HTTP API server for web browser access (port 3000-3010)
+            // This runs in a separate async task to avoid blocking application initialization
             info!("📡 Starting HTTP API server...");
             tauri::async_runtime::spawn(async move {
-                if let Err(e) = http_server::start_http_server(
+                info!("🔄 HTTP API server task started");
+                // Add a delay to ensure the tokio runtime is fully initialized
+                // This helps prevent potential race conditions during startup
+                tokio::time::sleep(tokio::time::Duration::from_millis(HTTP_API_SERVER_INIT_DELAY_MS)).await;
+                info!("🔄 HTTP API server task ready to initialize...");
+                
+                match http_server::start_http_server(
                     encounter_http,
                     player_state_http,
                     player_cache_http,
@@ -130,15 +142,28 @@ pub fn run() {
                 )
                 .await
                 {
-                    warn!("❌ HTTP API server failed to start: {}", e);
+                    Ok(_) => info!("✅ HTTP API server stopped gracefully"),
+                    Err(e) => {
+                        warn!("❌ HTTP API server failed to start: {}", e);
+                        warn!("💡 This means web browser access via port 3000 will not work");
+                        warn!("💡 Please ensure no other applications are using ports 3000-3010");
+                        warn!("💡 Check firewall settings if the issue persists");
+                    }
                 }
             });
             
             // Start static file server for web browser access (port 1420-1430)
             // This serves the built frontend files, allowing tunnel access in production
+            // This runs in a separate async task to avoid blocking application initialization
             info!("📂 Starting static file server...");
             let app_handle_static = app_handle.clone();
             tauri::async_runtime::spawn(async move {
+                info!("🔄 Static file server task started");
+                // Add a delay to ensure proper initialization order
+                // Start after HTTP API server to avoid conflicts
+                tokio::time::sleep(tokio::time::Duration::from_millis(STATIC_FILE_SERVER_INIT_DELAY_MS)).await;
+                info!("🔄 Static file server task ready to initialize...");
+                
                 // Try to find the frontend build directory
                 // In production builds, we need to bundle and serve the static files
                 let mut frontend_path = None;
@@ -147,6 +172,7 @@ pub fn run() {
                 if let Ok(resource_dir) = app_handle_static.path().resource_dir() {
                     let bundled_frontend = resource_dir.join("build");
                     if bundled_frontend.exists() {
+                        info!("📁 Found frontend at resource directory: {}", bundled_frontend.display());
                         frontend_path = Some(bundled_frontend);
                     }
                 }
@@ -158,6 +184,7 @@ pub fn run() {
                         if let Some(base) = parent {
                             let build_dir = base.join("build");
                             if build_dir.exists() {
+                                info!("📁 Found frontend at app directory: {}", build_dir.display());
                                 frontend_path = Some(build_dir);
                             }
                         }
@@ -166,8 +193,14 @@ pub fn run() {
                 
                 if let Some(frontend_dir) = frontend_path {
                     info!("✅ Frontend build directory found at: {}", frontend_dir.display());
-                    if let Err(e) = static_server::start_static_server(frontend_dir).await {
-                        warn!("❌ Static file server failed to start: {}", e);
+                    match static_server::start_static_server(frontend_dir).await {
+                        Ok(_) => info!("✅ Static file server stopped gracefully"),
+                        Err(e) => {
+                            warn!("❌ Static file server failed to start: {}", e);
+                            warn!("💡 This means web browser access via port 1420 will not work");
+                            warn!("💡 Please ensure no other applications are using ports 1420-1430");
+                            warn!("💡 Check firewall settings if the issue persists");
+                        }
                     }
                 } else {
                     info!("ℹ️  Static file server not started - frontend build directory not found");
