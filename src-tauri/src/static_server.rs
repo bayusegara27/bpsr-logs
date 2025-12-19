@@ -1,9 +1,18 @@
-use axum::{routing::get_service, Router};
+use axum::{
+    body::Body,
+    http::{Request, StatusCode},
+    response::Response,
+    routing::get,
+    Router,
+};
 use log::{info, warn};
+use std::convert::Infallible;
+use std::io;
 use std::net::SocketAddr;
 use std::path::PathBuf;
+use tower::ServiceExt;
 use tower_http::cors::{Any, CorsLayer};
-use tower_http::services::ServeDir;
+use tower_http::services::{ServeDir, ServeFile};
 
 /// Start a static file server on port 1420 to serve the built frontend
 /// This allows web browser access via tunneling (cloudflared, ngrok, etc.)
@@ -24,11 +33,17 @@ pub async fn start_static_server(
         .allow_methods(Any)
         .allow_headers(Any);
 
+    // Path to index.html for SPA fallback
+    let index_path = frontend_dir.join("index.html");
+
     // Create a service that serves files from the frontend directory
-    let serve_dir = ServeDir::new(&frontend_dir).append_index_html_on_directories(true);
+    // with index.html as fallback for SPA routing
+    let serve_dir = ServeDir::new(&frontend_dir)
+        .append_index_html_on_directories(true)
+        .not_found_service(ServeFile::new(&index_path));
 
     let app = Router::new()
-        .fallback_service(get_service(serve_dir))
+        .nest_service("/", serve_dir)
         .layer(cors);
 
     let addr = SocketAddr::from(([0, 0, 0, 0], 1420));
