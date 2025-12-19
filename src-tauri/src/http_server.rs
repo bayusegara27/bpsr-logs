@@ -11,11 +11,10 @@ use std::sync::Arc;
 use tower_http::cors::{Any, CorsLayer};
 
 use crate::live::bptimer_state::BPTimerEnabledMutex;
-use crate::live::commands::{get_player_window, get_skill_window, StatType};
+use crate::live::commands::{get_player_window, get_skill_window_impl, StatType};
 use crate::live::opcodes_models::{Encounter, EncounterMutex};
 use crate::live::player_state::{PlayerCacheMutex, PlayerStateMutex};
 
-#[derive(Clone)]
 pub struct AppState {
     pub encounter: EncounterMutex,
     pub player_state: PlayerStateMutex,
@@ -133,12 +132,13 @@ async fn api_get_dps_skill_window(
     State(state): State<Arc<AppState>>,
     Path(player_uid): Path<String>,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
+    let player_uid_i64 = player_uid.parse::<i64>().map_err(|_| StatusCode::BAD_REQUEST)?;
     let encounter = state.encounter.lock().unwrap();
     let player_cache = state.player_cache.lock().unwrap();
     let player_state = state.player_state.lock().unwrap();
-    match get_skill_window(
-        player_uid,
+    match get_skill_window_impl(
         encounter,
+        player_uid_i64,
         StatType::Dmg,
         &player_cache,
         &player_state,
@@ -170,12 +170,13 @@ async fn api_get_dps_boss_only_skill_window(
     State(state): State<Arc<AppState>>,
     Path(player_uid): Path<String>,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
+    let player_uid_i64 = player_uid.parse::<i64>().map_err(|_| StatusCode::BAD_REQUEST)?;
     let encounter = state.encounter.lock().unwrap();
     let player_cache = state.player_cache.lock().unwrap();
     let player_state = state.player_state.lock().unwrap();
-    match get_skill_window(
-        player_uid,
+    match get_skill_window_impl(
         encounter,
+        player_uid_i64,
         StatType::DmgBossOnly,
         &player_cache,
         &player_state,
@@ -202,12 +203,13 @@ async fn api_get_heal_skill_window(
     State(state): State<Arc<AppState>>,
     Path(player_uid): Path<String>,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
+    let player_uid_i64 = player_uid.parse::<i64>().map_err(|_| StatusCode::BAD_REQUEST)?;
     let encounter = state.encounter.lock().unwrap();
     let player_cache = state.player_cache.lock().unwrap();
     let player_state = state.player_state.lock().unwrap();
-    match get_skill_window(
-        player_uid,
+    match get_skill_window_impl(
         encounter,
+        player_uid_i64,
         StatType::Heal,
         &player_cache,
         &player_state,
@@ -275,7 +277,7 @@ async fn api_set_bptimer_enabled(
     Json(payload): Json<SetBptimerRequest>,
 ) -> StatusCode {
     use crate::live::bptimer_state::set_bptimer_enabled;
-    set_bptimer_enabled(state.bptimer_enabled.clone(), payload.enabled);
+    set_bptimer_enabled(&state.bptimer_enabled, payload.enabled);
     info!("BPTimer enabled set to {} via HTTP API", payload.enabled);
     StatusCode::OK
 }

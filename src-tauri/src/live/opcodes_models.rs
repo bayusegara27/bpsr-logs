@@ -3,9 +3,9 @@ use blueprotobuf_lib::blueprotobuf;
 use blueprotobuf_lib::blueprotobuf::{EEntityType, SyncContainerData};
 use once_cell::sync::Lazy;
 use std::collections::HashMap;
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 
-pub type EncounterMutex = Mutex<Encounter>;
+pub type EncounterMutex = Arc<Mutex<Encounter>>;
 
 #[derive(Debug, Default, Clone)]
 pub struct Encounter {
