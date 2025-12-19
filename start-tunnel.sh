@@ -23,25 +23,26 @@ echo "[OK] cloudflared is installed"
 echo ""
 
 # Check if port 1420 is listening - try multiple methods for portability
+PORT=1420
 port_listening=false
 
 # Method 1: Try lsof (common on Mac/Linux) - use simple syntax for portability
 if command -v lsof &> /dev/null; then
-    if lsof -i :1420 2>/dev/null | grep -q "LISTEN"; then
+    if lsof -i :"$PORT" 2>/dev/null | grep -q " LISTEN$"; then
         port_listening=true
     fi
 fi
 
 # Method 2: Try netstat (fallback)
 if [ "$port_listening" = false ] && command -v netstat &> /dev/null; then
-    if netstat -an 2>/dev/null | grep -q ":1420 .*LISTEN"; then
+    if netstat -an 2>/dev/null | grep -E ":${PORT}[[:space:]].*LISTEN" > /dev/null; then
         port_listening=true
     fi
 fi
 
 # Method 3: Try ss (modern Linux)
 if [ "$port_listening" = false ] && command -v ss &> /dev/null; then
-    if ss -ln 2>/dev/null | grep -q ":1420 .*LISTEN"; then
+    if ss -ln 2>/dev/null | grep -E ":${PORT}[[:space:]].*LISTEN" > /dev/null; then
         port_listening=true
     fi
 fi

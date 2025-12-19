@@ -25,7 +25,7 @@ echo [OK] cloudflared is installed
 echo.
 
 REM Check if BPSR Logs is running (checking if port 1420 is in use)
-netstat -an | find ":1420 " | find "LISTENING" >nul 2>&1
+netstat -an | findstr ":1420" | findstr "LISTENING" >nul 2>&1
 if %ERRORLEVEL% NEQ 0 (
     echo [WARNING] BPSR Logs doesn't appear to be running
     echo          (Port 1420 is not listening)
